@@ -1,0 +1,26 @@
+.container {
+  max-width: 850px;
+  text-align: left;
+}
+
+.common-page__wrapper {
+  background-color: white;
+  
+  font-size: 14px;
+}
+
+.common-page {
+  display: flex;
+  
+  &__main {
+    flex: 1 0 0;
+    
+    margin-right: 15px;
+  }
+  
+  &__sidebar {
+    flex: 0 0 230px;
+    
+    background-color: lightgray;
+  }
+}

@@ -1,25 +1,45 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import {createRouter, createWebHistory} from 'vue-router'
+import Movies_Catalog from "@/components/Movies_Catalog";
+import Movie_Item from "@/components/Movie_Item";
+import Movie_Item_Full from "@/components/Movie_Item_Full"
+import Movie_Awards_From_Tab from "@/page/Movie_Awards_From_Tab";
+import Movie_Distributions_From_Tab from "@/page/Movie_Distributions_From_Tab";
+import Movie_Gallery_From_Tab from "@/page/Movie_Gallery_From_Tab";
+
+import Main_Page from "@/page/Main_Page";
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
+    {
+        path: '',
+        component: Main_Page,
+        props: true,
+        name: 'Main',
+    },
+    {
+        path: '/:id',
+        name: 'Full-Item',
+        component: Movie_Item_Full,
+    },
+    {
+        path: '/:id/awards',
+        name: 'Awards',
+        component: Movie_Awards_From_Tab,
+    },
+    {
+        path: '/:id/distributions',
+        name: 'Distributions',
+        component: Movie_Distributions_From_Tab,
+    },
+    {
+        path: '/:id/gallery',
+        name: 'Gallery',
+        component: Movie_Gallery_From_Tab,
+    },
 ]
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes
+    history: createWebHistory(process.env.BASE_URL),
+    routes
 })
 
 export default router

@@ -1,30 +1,120 @@
 <template>
-  <nav>
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+	<router-view></router-view>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
+    import Movies_Block from "@/components/Movies_Catalog";
 
-nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+    export default {
+        name: 'App',
+        components: {
+            Movies_Block
+        },
+        beforeCreate() {
+        },
+        mounted() {
+            this.$store.dispatch('loadMovies', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
+        },
+        watch: {
+            $route: {
+                handler(to, from) {
+                    //console.log(to, from, 'isWorking?')
+                    if (to.name === 'Main') {
+                        document.body.style.backgroundColor = '#f5f6f6'
+                    }
+                },
+            },
+        }
     }
-  }
-}
+</script>
+
+<style lang="scss">
+	@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+	#app {
+		font-family: 'Montserrat', sans-serif, Arial, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-align: center;
+
+		height: 100vh;
+
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		margin: 0;
+		height: 100vh;
+		background-color: #f5f6f6;
+	}
+
+	/*---------------------------*/
+
+	a {
+		color: #0000ee;
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	p {
+		margin: 0;
+	}
+
+	button {
+		border: none;
+		background-color: transparent;
+		cursor: pointer;
+
+		&[disabled] {
+			cursor: default;
+		}
+	}
+
+	h1, h2, h3 {
+		margin: 0;
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	/*---------------------------*/
+
+
+	.btn {
+		display: inline-block;
+		font-family: 'Montserrat', sans-serif;
+		//color: white;
+		font-size: 16px;
+	}
+
+	//Сетка
+	.container {
+		width: 100%;
+		max-width: 100%;
+
+		margin: 0 auto;
+	}
+
+
+	.slide-fade-enter-active {
+		transition: all 0.3s;
+	}
+
+	.slide-fade-leave-active {
+		transition: all 0.3s;
+	}
+
+	.slide-fade-enter-from,
+	.slide-fade-leave-to {
+		transform: translateY(10px);
+		opacity: 0;
+	}
 </style>
