@@ -4,6 +4,7 @@
 
 <script>
     import Movies_Block from "@/components/Movies_Catalog";
+    import 'floating-vue/dist/style.css'
 
     export default {
         name: 'App',
@@ -14,13 +15,14 @@
         },
         mounted() {
             this.$store.dispatch('loadMovies', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
+			document.body.style.backgroundColor = '#f5f6f6'
         },
         watch: {
             $route: {
                 handler(to, from) {
                     //console.log(to, from, 'isWorking?')
-                    if (to.name === 'Main') {
-                        document.body.style.backgroundColor = '#f5f6f6'
+                    if (to.name === 'Full-Item') {
+                        document.body.style.backgroundColor = 'White'
                     }
                 },
             },
@@ -52,7 +54,8 @@
 	body {
 		margin: 0;
 		height: 100vh;
-		background-color: #f5f6f6;
+		//background-color: #f5f6f6;
+		background-color: white;
 	}
 
 	/*---------------------------*/
@@ -60,7 +63,7 @@
 	a {
 		color: #0000ee;
 		cursor: pointer;
-		text-decoration: underline;
+		text-decoration: none;
 	}
 
 	p {

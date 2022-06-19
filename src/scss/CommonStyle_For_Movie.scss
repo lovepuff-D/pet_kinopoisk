@@ -1,5 +1,5 @@
 .container {
-  max-width: 850px;
+  max-width: 1300px;
   text-align: left;
 }
 
@@ -15,11 +15,12 @@
   &__main {
     flex: 1 0 0;
     
-    margin-right: 15px;
+    //margin-right: 15px;
+    padding: 0 25px 25px;
   }
   
   &__sidebar {
-    flex: 0 0 230px;
+    flex: 0 0 350px;
     
     background-color: lightgray;
   }

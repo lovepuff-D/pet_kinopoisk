@@ -16,7 +16,6 @@
 					<div class="gallery__images grid">
 						<div
 								v-for="image in getImages"
-
 								:key="image.previewUrl"
 								class="gallery__images_item grid-item grid-sizer"
 						>
@@ -26,7 +25,9 @@
 						<div class="gutter-sizer"></div>
 						<!----------------->
 					</div>
-					<div class="gallery__pagination gallery-pagination">
+					<div
+							v-if="getPaginationForGallery !== 1"
+							class="gallery__pagination gallery-pagination">
 						<button v-for="e of getPaginationForGallery"
 								@click="changePage(e)"
 								class="gallery-pagination__item btn"
@@ -58,7 +59,6 @@
             changeTab(type) {
                 this.activeTab = type
                 this.$store.dispatch('loadImages', {payload: this.$route.params.id, type: type, page: 1})
-                this.fixMasonry()
             },
             changePage(numPage) {
                 this.activePage = numPage
@@ -67,7 +67,6 @@
                     type: this.activeTab,
                     page: numPage
                 })
-                this.fixMasonry()
                 window.scrollTo(0, 0)
             },
             //Временная функция для нормальной работы Masonry
@@ -81,7 +80,7 @@
                         gutter: '.gutter-sizer',
                         percentPosition: true
                     })
-                }, 500)
+                }, 1000)
             }
         },
         computed: {
@@ -89,16 +88,25 @@
             ...mapGetters(['getImages', 'getTypeImages', 'getPaginationForGallery']),
         },
         mounted() {
+            this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
             this.$store.dispatch('loadTypeImages', this.$route.params.id)
+            this.$store.dispatch('loadImages', {
+                payload: this.$route.params.id,
+                type: this.$store.state.firstKnownTypeImage,
+                page: 1
+            })
             this.activeTab = this.$store.state.firstKnownTypeImage
-            this.fixMasonry()
-
         },
         watch: {
             '$store.state.firstKnownTypeImage'(newValue, oldValue) {
                 // устанавливаем модель active tab для выставления активной вкладки
-                console.log(newValue, 'Изменения в state')
+                //console.log(newValue, 'Изменения в state')
                 this.activeTab = newValue
+            },
+            '$store.state.imagesOfMovie'(newValue, oldValue) {
+                //console.log(newValue, 'Изменения в state')
+                //Выставление настроек для Masonry
+                this.fixMasonry()
             }
         }
     }
@@ -121,7 +129,7 @@
 	//----
 
 	.gallery__wrapper {
-		padding: 15px;
+		padding: 15px 0;
 	}
 
 	.gallery {

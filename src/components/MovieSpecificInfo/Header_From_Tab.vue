@@ -3,20 +3,26 @@
 		<a @click="$router.push({name:'Full-Item', params: {id:movieFullInfo.kinopoiskId}})"
 		   class="about-movie"
 		>
-			Информация о фильме
+			<span class="about-movie_icon-back"></span>
+			На страницу фильма
 		</a>
-		<h1>
-		<span class="type-page">
-			<slot name="header"></slot>
-		</span>
-			<br>
+		<div class="header__title">
 			<a
 					@click="$router.push({name:'Full-Item', params: {id:movieFullInfo.kinopoiskId}})"
 					class="movie-name"
 			>
-				{{movieFullInfo.nameRu !== '' ? movieFullInfo.nameRu : movieFullInfo.nameEn}}
+				{{movieFullInfo.nameRu !== '' ? movieFullInfo.nameRu : movieFullInfo.nameOriginal}}
 			</a>
-		</h1>
+			<br>
+			<span class="movie-name_original">
+				{{movieFullInfo.nameOriginal}}
+			</span>
+			<br>
+			<span class="type-page">
+			<slot name="header">
+			</slot>
+		</span>
+		</div>
 
 	</div>
 </template>
@@ -34,30 +40,64 @@
 
 <style scoped lang="scss">
 
+	a {
+		text-decoration: none
+	}
+
 	.header {
-		margin-bottom: 30px;
+		padding: 30px 0 0;
 
-		h1 {
-			margin-bottom: 10px;
-			padding: 15px;
+		.header__title {
+			padding: 15px 0;
 
-			font-size: 23px;
+			font-size: 26px;
 			font-weight: 600;
-		}
 
-		.type-page {
-			color: #f60;
+			line-height: 30px;
 		}
 
 		.about-movie {
-			display: block;
+			display: flex;
+			align-items: center;
 
+			margin-bottom: 10px;
 
-			padding: 15px 0 15px 15px;
+			color: rgba(0, 0, 0, .6);
+			font-size: 13px;
+			font-weight: 600;
+		}
 
+		.about-movie_icon-back {
+			display: inline-block;
+			width: 15px;
+			height: 24px;
 
+			transform: rotate(180deg);
+			background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%23000' opacity='0.3'%3E %3Cpath fill-rule='evenodd' d='M11.307 1.778L5.333 7.999 11.306 14.222 12.444 13.041 7.588 7.999 12.444 2.959z' transform='matrix(-1 0 0 1 17.778 0)'/%3E %3C/svg%3E") no-repeat center center;
+		}
 
+		.type-page {
 			font-size: 14px;
+			font-weight: 500;
+			color: rgba(0, 0, 0, .6);
+		}
+
+		.movie-name {
+			font-size: 36px;
+			font-weight: 700;
+			color: #1f1f1f;
+		}
+
+		.movie-year {
+			color: #777;
+			font-size: 32px;
+			font-weight: 500
+		}
+
+		.movie-name_original {
+			font-size: 18px;
+			font-weight: 400;
+			color: rgba(0, 0, 0, .6);
 		}
 	}
 

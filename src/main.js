@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import components from '@/components/UI'
-
+import FloatingVue from 'floating-vue'
 
 const app = createApp(App)
 
@@ -13,8 +13,8 @@ components.forEach(component => {
 })
 
 
-
 app
     .use(store)
     .use(router)
+    .use(FloatingVue)
     .mount('#app')

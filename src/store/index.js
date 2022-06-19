@@ -6,6 +6,10 @@ export default createStore({
         movieFullInfo: [],
         actorsMovie: [],
         movieVideos: [],
+
+        moviesHover: [],
+        stuffHover: [],
+
         /*boxOffice: [],*/
         awards: [],
         distributions: [],
@@ -23,6 +27,40 @@ export default createStore({
             {typeEng: 'SCREENSHOT', typeRu: 'Скриншоты', total: 0},
         ],
         firstKnownTypeImage: '', //Используется для проставления активного таба в компоненте AboutMoviesGallery
+
+        similarMovies: [],
+
+        listOfMonth: {
+            0: [
+                'Январь',
+                'Февраль',
+                'Март',
+                'Апрель',
+                'Май',
+                'Июнь',
+                'Июль',
+                'Август',
+                'Сентябрь',
+                'Октябрь',
+                'Ноябрь',
+                'Декабрь',
+            ],
+            1: [
+                'Января',
+                'Февраля',
+                'Марта',
+                'Апреля',
+                'Мая',
+                'Июня',
+                'Июля',
+                'Августа',
+                'Сентября',
+                'Октября',
+                'Ноября',
+                'Декабря',
+            ],
+        }
+
     }),
     getters: {
         getDirector(state) {
@@ -87,27 +125,15 @@ export default createStore({
 
         //Дата Премьеры
         getDistributions(state) {
-            let arr = [
-                'Январь',
-                'Февраль',
-                'Март',
-                'Апрель',
-                'Май',
-                'Июнь',
-                'Июль',
-                'Август',
-                'Сентябрь',
-                'Октябрь',
-                'Ноябрь',
-                'Декабрь',
-            ]
             if (state.distributions.length !== 0) {
                 return state.distributions.items.filter(e => {
                     if (e.type === 'WORLD_PREMIER' || e.type === 'PREMIERE') {
+                        console.log(e)
                         //ревёрсим дату, вычисляем месяц
                         let fullDate = e.date.split(/-/).reverse().join('-')
                         let month = e.date.split(/-/).reverse()[1]
-                        e.date = fullDate.replace(/-[\d]{2}/, '-' + arr[month - 1])
+                        e.date = fullDate.replace(/-[\d]{2}/, '-' + state.listOfMonth[1][month - 1])
+                        e.date = e.date.replace(/-/g, ' ')
                         //console.log(e.date)
                         return true
                     }
@@ -130,6 +156,7 @@ export default createStore({
         },
 
         getPaginationForGallery: (state) => {
+            console.log(state.imagesOfMovie.totalPages)
             return state.imagesOfMovie.totalPages
         },
     },
@@ -141,14 +168,33 @@ export default createStore({
             state.movies = payload.films
         },
 
-        ADD_ONE_MOVIE(state, payload) {
+        ADD_ONE_MOVIE(state, {payload, loadType}) {
             //console.log(payload, 'One film FULL INFO')
-            state.movieFullInfo = payload
+            if (loadType === 'hover') {
+                state.moviesHover = payload
+                console.log('state.moviesHover', state.moviesHover)
+            }
+            if (loadType === 'standard') {
+                state.movieFullInfo = payload
+                //Меняем формат ratingAgeLimits (standard "age16" to "16+")
+                state.movieFullInfo.ratingAgeLimits = state.movieFullInfo.ratingAgeLimits.match(/\d.*/g) + '+'
+            }
         },
 
         ADD_ACTORS(state, payload) {
             //console.log(payload, 'Actors from movie')
             state.actorsMovie = payload
+        },
+
+        ADD_ONE_ACTORS(state, {payload, loadType}) {
+            //console.log(payload, 'One staff')
+            if (loadType === 'hover') {
+                state.stuffHover = payload
+                console.log('hover person', state.stuffHover)
+            }
+            if (loadType === 'standard') {
+                state.actorsMovie = payload
+            }
         },
 
         ADD_VIDEOS(state, payload) {
@@ -177,7 +223,7 @@ export default createStore({
         },
 
         ADD_TYPE_IMAGES_MOVIE(state, {payload, type}) {
-            //console.log(payload, 'images movie')
+            //console.log(payload, 'images type movie')
             //Скрипт для вывода не пустого массива с картинками, при первой загрузке
             if (state.imagesOfMovie.length === 0) {
                 if (payload.total !== 0) {
@@ -190,6 +236,10 @@ export default createStore({
             //console.log(state.typeImages)
         },
 
+        ADD_SIMILAR_MOVIES(state, payload) {
+            //console.log(payload, 'similar movies')
+            state.similarMovies = payload
+        },
 
     },
     actions: {
@@ -207,7 +257,7 @@ export default createStore({
         },
 
         //Загрузка инф-и по одному фильму
-        async loadOneMovie({state, commit}, payload) {
+        async loadOneMovie({state, commit}, {payload, loadType = 'standard'}) {
             let url = 'https://kinopoiskapiunofficial.tech/api/v2.2/films/' + payload
             let response = await fetch(url, {
                 method: 'GET',
@@ -216,7 +266,10 @@ export default createStore({
                     'Content-Type': 'application/json',
                 },
             })
-            commit('ADD_ONE_MOVIE', await response.json())
+            commit('ADD_ONE_MOVIE', {
+                payload: await response.json(),
+                loadType: loadType
+            })
         },
 
         //Staff который работал над фильмом
@@ -231,6 +284,23 @@ export default createStore({
                 },
             })
             commit('ADD_ACTORS', await response.json())
+        },
+
+        //Get bio about person
+        async loadOneStaff({commit}, {payload, loadType = 'standard'}) {
+            let url = `https://kinopoiskapiunofficial.tech/api/v1/staff/${payload}`
+            console.log(url, 'url loadStaff')
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+            commit('ADD_ONE_ACTORS', {
+                payload: await response.json(),
+                loadType: loadType
+            })
         },
 
         //Загрузка трейлеров и видео
@@ -326,8 +396,164 @@ export default createStore({
             commit('ADD_IMAGES_MOVIE', await response.json())
         },
 
+
+        //Похожие фильмы
+        async loadSimilarMovies({commit}, payload) {
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${payload}/similars`
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+            commit('ADD_SIMILAR_MOVIES', await response.json())
+        },
+
+        //Список фактов и ляпов
+        async loadFacts({commit, dispatch}, payload) {
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${payload}/facts`
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+            commit('ADD_FACTS', await response.json(), {module: 'movies_facts'})
+        },
+
+        //Список рецензий от пользователей
+        async loadReviews({commit}, {payload, page = 1}) {
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${payload}/reviews?page=${page}&order=USER_POSITIVE_RATING_DESC`
+            //Пришлось сделать искусственную задержку, т.е без неё выходит ошибка
+            setTimeout(async () => {
+                let response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                commit('ADD_REVIEWS', await response.json(), {module: 'movies_reviews'})
+            }, 300)
+        },
     },
-    modules: {}
+    modules: {
+        movies_facts: {
+            state: () => ({
+                moviesFacts: [],
+            }),
+            mutations: {
+                ADD_FACTS(state, payload) {
+                    //console.log(payload, 'Список фактов и ляпов')
+                    payload.items.map(e => {
+                        //Замена <a> на <button> + добавление атрибута data
+                        let f = e.text.match(/film\/\d+/g)
+                        //console.log('f', f)
+                        let n = e.text.match(/name\/\d+/g)
+                        //console.log('n', n)
+                        if (f !== null) {
+                            //console.log(f)
+                            e.text = e.text.replace(/href/g,
+                                `data-film`
+                            )
+                            e.text = e.text.replace(/<a/g,
+                                `<button`
+                            )
+                        }
+                        if (n !== null) {
+                            //console.log(f)
+                            e.text = e.text.replace(/href/g,
+                                `data-name`
+                            )
+                            e.text = e.text.replace(/<a/g,
+                                `<button`
+                            )
+                        }
+
+                        e.text = e.text.replace(/<\/a>/g, '</button>')
+                    })
+                    state.moviesFacts = payload
+                },
+            },
+            actions: {},
+            getters: {
+                getMovieFacts: (state) => {
+                    //console.log(state.moviesFacts, 'getter')
+                    if (state.moviesFacts.length !== 0) {
+                        return state.moviesFacts.items.filter(e => e.type === 'FACT')
+                    }
+                },
+                getMovieBloop: (state) => {
+                    //console.log(state.moviesFacts, 'getter')
+                    if (state.moviesFacts.length !== 0) {
+                        return state.moviesFacts.items.filter(e => e.type === 'BLOOPER')
+                    }
+                },
+            }
+        },
+        movies_reviews: {
+            state: () => ({
+                moviesReviews: [],
+            }),
+            mutations: {
+                ADD_REVIEWS(state, payload) {
+                    //console.log(payload, 'Список рецензий')
+                    state.moviesReviews = payload
+                    state.moviesReviews.items.forEach(e => {
+                        e.disableBtnLikes = false
+                        e.disableBtnDislikes = false
+                    })
+                },
+                UPDATE_POSITIVE_LIKES(state, {payload, increment = true}) {
+                    //payloads = id
+                    //console.log(payload, 'Список рецензий')
+                    if (increment) {
+                        state.moviesReviews.items.find(e => e.kinopoiskId === payload).positiveRating++
+                    } else {
+                        state.moviesReviews.items.find(e => e.kinopoiskId === payload).positiveRating--
+                    }
+
+
+                },
+                UPDATE_NEGATIVE_LIKES(state, {payload, increment = true}) {
+                    //payloads = id
+                    //console.log(payload, 'Список рецензий')
+                    if (increment) {
+                        state.moviesReviews.items.find(e => e.kinopoiskId === payload).negativeRating++
+                    } else {
+                        state.moviesReviews.items.find(e => e.kinopoiskId === payload).negativeRating--
+                    }
+                },
+            },
+            actions: {},
+            getters: {
+                getReviews(state, getters, rootState) {
+                    if (state.moviesReviews.length !== 0) {
+                        //console.log(state.moviesReviews)
+                        state.moviesReviews.items.forEach(e => {
+                            e.description = e.description.replace(/(\r\n\r\n)/g, ' <br> <br> ')
+                            //функция для форматирования даты рецензии
+                            e.date = e.date.replace(/T/g, '-в-')
+                            let data = e.date.split(/[-]/g)
+                            let [a, b] = [data[0], data[2]]
+                            data[0] = b
+                            data[2] = a
+                            data[1] = rootState.listOfMonth[1][data[1] - 1]
+                            data = data.join(' ')
+                            data = data.split(':').splice(0, data.split(':').length - 1).join(':')
+                            e.date = data
+                        })
+                        return state.moviesReviews.items
+                    }
+                },
+                getPaginationForReviews(state) {
+                    return state.moviesReviews.totalPages
+                }
+            }
+        }
+    }
 })
 
 const moduleOneMovie = {}

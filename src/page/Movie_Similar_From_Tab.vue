@@ -4,10 +4,10 @@
 			<div class="common-page__main">
 				<Header_From_Tab>
 					<template #header>
-						Галерея
+						Рекомендации
 					</template>
 				</Header_From_Tab>
-				<AboutMovies_Gallery></AboutMovies_Gallery>
+				<AboutMovies_Similar></AboutMovies_Similar>
 			</div>
 			<aside class="common-page__sidebar">
 				<About_Movie_Sidebar></About_Movie_Sidebar>
@@ -17,23 +17,20 @@
 </template>
 
 <script>
-    import AboutMovies_Gallery from "@/components/MovieSpecificInfo/AboutMovies_Gallery"
+    import AboutMovies_Similar from "@/components/MovieSpecificInfo/AboutMovies_Similar"
     import Header_From_Tab from "@/components/MovieSpecificInfo/Header_From_Tab";
     import About_Movie_Sidebar from "@/components/MovieSpecificInfo/AboutMovie_Sidebar"
 
     export default {
+        name: "Movie_Similar_From_Tab",
         components: {
-            AboutMovies_Gallery,
+            AboutMovies_Similar,
             About_Movie_Sidebar,
             Header_From_Tab
         },
-        name: "Movie_Gallery_From_Tab",
-
-        mounted() {
-        }
     }
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 	@import "../scss/CommonStyle_For_Movie";
 </style>
