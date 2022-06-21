@@ -1,5 +1,7 @@
 # Copy of Kinopoisk (In developing)
 
+Проект разворачивать в development mode
+
 Копия "Кинопоиска", с помощью API от (Kinopoisk Api Unofficial)
 
 Технологии: Vue (Vuex, Vue Router), Masonry, Swiper
