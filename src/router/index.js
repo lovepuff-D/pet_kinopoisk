@@ -5,22 +5,34 @@ import Movie_Item_Full from "@/components/Movie_Item_Full"
 import Movie_Awards_From_Tab from "@/page/Movie_Awards_From_Tab";
 import Movie_Distributions_From_Tab from "@/page/Movie_Distributions_From_Tab";
 import Movie_Gallery_From_Tab from "@/page/Movie_Gallery_From_Tab";
-import Movie_Similar_From_Tab from "@/page/Movie_Similar_From_Tab";
+//import Movie_Similar_From_Tab from "@/page/Movie_Similar_From_Tab";
 import Movie_Reviews_From_Tab from "@/page/Movie_Reviews_From_Tab"
 
-import Main_Page from "@/page/Main_Page";
+import Main_Page from "@/page/Page_Main";
+import Catalog from "@/page/Page_Of_Movies-Catalog";
+
+import Person_Item from "@/components/Person_Item";
 
 const routes = [
     {
         path: '',
         component: Main_Page,
-        props: true,
         name: 'Main',
     },
     {
-        path: '/:id',
+        path: '/Catalog',
+        component: Catalog,
+        name: 'Catalog',
+    },
+    {
+        path: '/:id/film',
         name: 'Full-Item',
         component: Movie_Item_Full,
+    },
+    {
+        path: '/:id/person/',
+        name: 'person',
+        component: Person_Item,
     },
     {
         path: '/:id/awards',
@@ -37,11 +49,11 @@ const routes = [
         name: 'Gallery',
         component: Movie_Gallery_From_Tab,
     },
-    {
+    /*{
         path: '/:id/similar',
         name: 'Similar',
         component: Movie_Similar_From_Tab,
-    },
+    },*/
     {
         path: '/:id/reviews',
         name: 'Reviews',

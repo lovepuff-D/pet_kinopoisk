@@ -2,8 +2,10 @@ import {createApp} from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import components from '@/components/UI'
+import components from '@/components'
 import FloatingVue from 'floating-vue'
+import loader from "vue-ui-preloader";
+
 
 const app = createApp(App)
 
@@ -17,4 +19,5 @@ app
     .use(store)
     .use(router)
     .use(FloatingVue)
+    .use(loader)
     .mount('#app')

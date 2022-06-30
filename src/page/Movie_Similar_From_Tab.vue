@@ -17,7 +17,7 @@
 </template>
 
 <script>
-    import AboutMovies_Similar from "@/components/MovieSpecificInfo/AboutMovies_Similar"
+    //import AboutMovies_Similar from "@/components/MovieSpecificInfo/AboutMovies_Similar"
     import Header_From_Tab from "@/components/MovieSpecificInfo/Header_From_Tab";
     import About_Movie_Sidebar from "@/components/MovieSpecificInfo/AboutMovie_Sidebar"
 

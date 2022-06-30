@@ -177,24 +177,15 @@ export default createStore({
             if (loadType === 'standard') {
                 state.movieFullInfo = payload
                 //Меняем формат ratingAgeLimits (standard "age16" to "16+")
-                state.movieFullInfo.ratingAgeLimits = state.movieFullInfo.ratingAgeLimits.match(/\d.*/g) + '+'
+                if (state.movieFullInfo.ratingAgeLimits) {
+                    state.movieFullInfo.ratingAgeLimits = state.movieFullInfo.ratingAgeLimits.match(/\d.*/g) + '+'
+                }
             }
         },
 
         ADD_ACTORS(state, payload) {
             //console.log(payload, 'Actors from movie')
             state.actorsMovie = payload
-        },
-
-        ADD_ONE_ACTORS(state, {payload, loadType}) {
-            //console.log(payload, 'One staff')
-            if (loadType === 'hover') {
-                state.stuffHover = payload
-                console.log('hover person', state.stuffHover)
-            }
-            if (loadType === 'standard') {
-                state.actorsMovie = payload
-            }
         },
 
         ADD_VIDEOS(state, payload) {
@@ -243,8 +234,22 @@ export default createStore({
 
     },
     actions: {
+        //Поиск фильмов по параметрам
+        async findMovies({commit}, {nameOfMovie, order = 'NUM_VOTE'}) {
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`
+            //console.log(url)
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+            commit('addToMoviesFromSearchField', await response.json(), {module: 'header_navigation'})
+        },
+
         //По умолчанию топ фильмы
-        async loadMovies(contex, {payload, page}) {
+        async loadMovies({commit}, {payload, page}) {
             let url = 'https://kinopoiskapiunofficial.tech/api/v2.2/films/top?type=' + payload + '&page=' + page
             let response = await fetch(url, {
                 method: 'GET',
@@ -253,11 +258,25 @@ export default createStore({
                     'Content-Type': 'application/json',
                 },
             })
-            contex.commit('ADD_MOVIES', await response.json())
+            commit('ADD_MOVIES', await response.json())
+        },
+
+        //По умолчанию топ фильмы
+        async testLoad({commit}, {payload, page}) {
+            let url = 'https://kinopoiskapiunofficial.tech/api/v2.2/films/top?type=' + payload + '&page=' + page
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+            return await response.json()
         },
 
         //Загрузка инф-и по одному фильму
         async loadOneMovie({state, commit}, {payload, loadType = 'standard'}) {
+            state.movieFullInfo = []
             let url = 'https://kinopoiskapiunofficial.tech/api/v2.2/films/' + payload
             let response = await fetch(url, {
                 method: 'GET',
@@ -288,8 +307,8 @@ export default createStore({
 
         //Get bio about person
         async loadOneStaff({commit}, {payload, loadType = 'standard'}) {
+            payload = 9144
             let url = `https://kinopoiskapiunofficial.tech/api/v1/staff/${payload}`
-            console.log(url, 'url loadStaff')
             let response = await fetch(url, {
                 method: 'GET',
                 headers: {
@@ -300,7 +319,7 @@ export default createStore({
             commit('ADD_ONE_ACTORS', {
                 payload: await response.json(),
                 loadType: loadType
-            })
+            }, {module: ['person']})
         },
 
         //Загрузка трейлеров и видео
@@ -440,6 +459,26 @@ export default createStore({
         },
     },
     modules: {
+        header_navigation: {
+            state: () => ({
+                moviesFromSearchField: [],
+            }),
+            mutations: {
+                addToMoviesFromSearchField(state, payload) {
+                    state.moviesFromSearchField = payload
+                },
+                clearMoviesFromSearchField(state) {
+                    state.moviesFromSearchField = []
+                }
+            },
+            actions: {},
+            getters: {
+                getMoviesFromSearchField(state) {
+                    //console.log(state.moviesFromSearchField.items)
+                    return state.moviesFromSearchField.items
+                }
+            }
+        },
         movies_facts: {
             state: () => ({
                 moviesFacts: [],
@@ -551,6 +590,44 @@ export default createStore({
                 getPaginationForReviews(state) {
                     return state.moviesReviews.totalPages
                 }
+            }
+        },
+        module_person: {
+            state: () => ({
+                person: [],
+            }),
+            mutations: {
+                ADD_ONE_ACTORS(state, {payload, loadType}) {
+                    //console.log(payload, 'One staff')
+                    if (loadType === 'hover') {
+                        state.person = payload
+                        //console.log('hover person', state.stuffHover)
+                    }
+                    if (loadType === 'standard') {
+                        console.log(payload)
+                        state.person = payload
+                    }
+                },
+            },
+            actions: {},
+            getters: {
+                getGrowth(state) {
+                    if (state.person.length !== 0) {
+                        let a = String(state.person.growth).split('')
+                        a.splice(1, 0, '.')
+                        return a.join('')
+                    }
+                },
+                getBirthday(state, getters, rootState) {
+                    if (state.person.length !== 0) {
+                        let string = state.person.birthday
+                        let fullDate = string.split(/-/).reverse().join('-')
+                        let month = string.split(/-/).reverse()[1]
+                        string = fullDate.replace(/-[\d]{2}/, '-' + rootState.listOfMonth[1][month - 1])
+                        string = string.replace(/-/g, ' ')
+                        return string
+                    }
+                },
             }
         }
     }

@@ -1,5 +1,7 @@
 <template>
-	<div class="movies__item movies-item">
+	<div class="movies__item movies-item"
+		 @click="$router.push({ name: 'Full-Item', params: { id: item.filmId}})"
+	>
 		<img
 				@mouseenter="showFullInfo($event, item.filmId)"
 				:src="item.posterUrlPreview"
@@ -20,7 +22,7 @@
 				{{item.rating}}
 			</div>
 		</div>
-		<transition-group name="slide-fade">
+		<!--<transition-group name="slide-fade">
 			<div v-if="isShowFullInfo"
 				 class="movies-item__hover movies-item-hover"
 				 @mouseleave="hideFullInfo">
@@ -47,7 +49,7 @@
 					More...
 				</button>
 			</div>
-		</transition-group>
+		</transition-group>-->
 	</div>
 </template>
 
@@ -92,27 +94,30 @@
 	}
 
 	.movies__item {
-		width: 24%;
-		max-width: 500px;
-
-		margin-bottom: 40px;
-
-		background-color: blue;
-
+		position: relative;
 		overflow: hidden;
 
-		position: relative;
+		width: 15%;
+		max-width: 500px;
+		margin-bottom: 40px;
 
-		border-radius: 15px;
+		cursor: pointer;
+
+		&:hover {
+			.info__name {
+				color: #f60;
+			}
+		}
+
 		.movies-item__img {
 			display: block;
 
 			width: 100%;
 			max-width: 100%;
 
-			object-fit: fill;
+			border-radius: 10px;
 
-			cursor: pointer;
+			object-fit: fill;
 		}
 
 		.movies-item__info {
@@ -123,10 +128,10 @@
 			height: 70px;
 			padding: 15px;
 
-			background-color: white;
-
+			font-size: 13px;
 			font-weight: 500;
 
+			background-color: lightgray;
 
 			.info {
 				width: 80%;
@@ -134,12 +139,11 @@
 				text-align: left;
 
 				&__name {
-					@extend .cut_text;
-					white-space: nowrap;
-
 					margin-bottom: 5px;
 
 					font-weight: 700;
+
+					transition: color .2s;
 				}
 
 				&__genres {
@@ -177,8 +181,8 @@
 			width: 100%;
 			padding: 15px;
 
-			background: rgb(0,0,0);
-			background: linear-gradient(0deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.3029586834733894) 100%);
+			background: rgb(0, 0, 0);
+			background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.3029586834733894) 100%);
 
 			text-align: left;
 			color: white;
@@ -191,38 +195,6 @@
 
 				background-color: transparent;
 			}
-		}
-
-		.info {
-			width: 80%;
-
-			text-align: left;
-
-			&__name {
-				@extend .cut_text;
-				white-space: nowrap;
-
-				margin-bottom: 5px;
-
-				font-weight: 700;
-			}
-
-			&__genres {
-				@extend .cut_text;
-
-				white-space: nowrap;
-
-				p {
-					display: inline-block;
-					margin-right: 10px;
-				}
-			}
-		}
-
-		.rating {
-			width: 20%;
-			margin-left: 15px;
-			border: 1px solid cadetblue;
 		}
 	}
 

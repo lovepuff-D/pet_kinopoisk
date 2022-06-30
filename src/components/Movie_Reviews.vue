@@ -2,16 +2,13 @@
 	<button
 			@click="$router.push({name:'Reviews'})"
 			class="header header_link btn"
-			v-if="this.isShowTitle"
+			v-if="isShowTitle"
 	>
 		Рецензии зрителей
 		<span class="arrow-right"></span>
 	</button>
 	<div class="reviews__wrapper">
 		<Btn_Create_Reviews></Btn_Create_Reviews>
-		<div v-if="isShowPagination">
-			{{getReviews.total}}
-		</div>
 		<div class="reviews">
 			<div class="reviews-item">
 				<div
@@ -65,24 +62,24 @@
 			</div>
 			<div class="reviews__sidebar reviews-sidebar">
 				<div class="reviews-sidebar__item reviews-sidebar__total">
-					<span>{{this.$store.state.movies_reviews.moviesReviews.total}}</span>
+					<span>{{movies_reviews.total}}</span>
 					<span>Всего</span>
 				</div>
 				<div class="reviews-sidebar__item reviews-sidebar__positive">
-					<span>{{this.$store.state.movies_reviews.moviesReviews.totalPositiveReviews}}</span>
+					<span>{{movies_reviews.totalPositiveReviews}}</span>
 					<span>Положительные</span>
 				</div>
 				<div class="reviews-sidebar__item reviews-sidebar__negative">
-					<span>{{this.$store.state.movies_reviews.moviesReviews.totalNegativeReviews}}</span>
+					<span>{{movies_reviews.totalNegativeReviews}}</span>
 					<span>Отрицательные</span>
 				</div>
 				<div class="reviews-sidebar__item reviews-sidebar__neutral">
-					<span>{{this.$store.state.movies_reviews.moviesReviews.totalNeutralReviews}}</span>
+					<span>{{movies_reviews.totalNeutralReviews}}</span>
 					<span>Нейтральные</span>
 				</div>
 			</div>
 			<div
-					v-if="isShowPagination"
+					v-if="isShowPagination && movies_reviews.totalPages > 1"
 					class="reviews__pagination reviews-pagination"
 			>
 				<button
@@ -185,7 +182,9 @@
         },
         watch: {},
         computed: {
-            ...mapState(['movies_reviews']),
+            ...mapState({
+                movies_reviews: state => state.movies_reviews.moviesReviews
+			}),
             ...mapGetters(['getReviews', 'getPaginationForReviews']),
         },
         mounted() {

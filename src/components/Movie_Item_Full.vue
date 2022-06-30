@@ -1,4 +1,213 @@
+<script>
+    import {mapState, mapGetters} from 'vuex'
+
+    import Movie_Reviews from '@/components/Movie_Reviews'
+
+    // Import Swiper Vue.js components
+    import {Navigation, A11y} from 'swiper';
+    import {Swiper, SwiperSlide} from 'swiper/vue';
+
+    // Import Swiper styles
+    import 'swiper/css';
+    import 'swiper/css/navigation';
+
+    export default {
+        name: "Movie_Item-Full",
+        data() {
+            return {
+                staff: [],
+                director: '',
+                composer: '',
+                tabs: [
+                    {
+                        id: 1,
+                        name: 'Обзор'
+                    },
+                    {
+                        id: 2,
+                        name: 'Награды',
+                        src: 'Awards',
+                    },
+                    {
+                        id: 3,
+                        name: 'Премьеры',
+                        src: 'Distributions',
+                    },
+                    {
+                        id: 4,
+                        name: 'Изображения',
+                        src: 'Gallery',
+                    },
+                    {
+                        id: 5,
+                        name: 'Трейлеры',
+                    },
+                    /*{
+                        id: 6,
+                        name: 'Студии',
+                    },
+                    {
+                        id: 7,
+                        name: 'Связи',
+                    },*/
+                    {
+                        id: 8,
+                        name: 'Рецензии',
+                        src: 'Reviews'
+                    },
+                ],
+                ratingUser: [
+                    {
+                        id: 1,
+                    },
+                    {
+                        id: 2,
+                    },
+                    {
+                        id: 3,
+                    },
+                    {
+                        id: 4,
+                    },
+                    {
+                        id: 5,
+                    },
+                    {
+                        id: 6,
+                    },
+                    {
+                        id: 7,
+                    },
+                    {
+                        id: 8,
+                    },
+                    {
+                        id: 9,
+                    },
+                    {
+                        id: 10
+                    },
+                ].reverse(),
+
+                isLoadingPage: false,
+                isShowFactsWrapper: false,
+                isShowBloopersWrapper: false,
+                isShowAllFacts: false,
+                isShowAllBlooper: false,
+            }
+        },
+        components: {
+            Movie_Reviews,
+            Swiper,
+            SwiperSlide,
+        },
+        setup() {
+            const onSwiper = (swiper) => {
+                //console.log(swiper);
+            };
+            const onSlideChange = () => {
+                //console.log('slide change');
+            };
+            return {
+                onSwiper,
+                onSlideChange,
+                modules: [Navigation, A11y],
+            };
+        },
+        methods: {
+            loadAPI(id) {
+                this.$store.dispatch('loadOneMovie', {payload: id})
+                this.$store.dispatch('loadStaff', id)
+                //this.$store.dispatch('loadTrailerAndVideos', id)
+                this.$store.dispatch('loadSimilarMovies', id)
+                this.$store.dispatch('loadFacts', id)
+                //this.$store.dispatch('loadAwards', id)
+            },
+            moveToMovie(id) {
+                this.$router.push({name: 'Full-Item', params: {id: id}})
+                this.loadAPI(id)
+            }
+        },
+        computed: {
+            ...mapState(['movieFullInfo', 'actorsMovie', 'movieVideos', 'awards']),
+            ...mapGetters(
+                [
+                    'getDirector',
+                    'getComposer',
+                    'getWriters',
+                    'getProducers',
+                    'getOperators',
+                    'getDesigner',
+                    'getEditors',
+                    'getMovieFacts',
+                    'getMovieBloop',
+                ]
+            ),
+        },
+        beforeMount() {
+        },
+        mounted() {
+            setTimeout(() => {
+                let a = document.querySelectorAll("button[data-film], button[data-name]")
+                a.forEach(elem => {
+                    elem.addEventListener('mouseover', (event) => {
+                        if (event.target.dataset.film) {
+                            this.$store.dispatch('loadOneMovie', {
+                                payload: event.target.dataset.film.match(/\d/g).join(''),
+                                loadType: 'hover'
+                            })
+                        }
+                        if (event.target.dataset.name) {
+                            this.$store.dispatch('loadOneStaff', {
+                                payload: event.target.dataset.name.match(/\d/g).join(''),
+                                loadType: 'hover'
+                            })
+                        }
+                    })
+                })
+
+            }, 1000)
+
+            //Loading info about movie from API
+            this.loadAPI(this.$route.params.id)
+
+            let urlCDN = ['https://unpkg.com/@ungap/custom-elements-builtin', 'https://unpkg.com/x-frame-bypass']
+            for (const url of urlCDN) {
+                let scriptTag = document.createElement("script");
+                scriptTag.src = url
+                scriptTag.type = 'module'
+                document.getElementsByTagName('head')[0].appendChild(scriptTag);
+            }
+        },
+        watch: {
+            '$store.getters.getMovieFacts'(newValue, oldValue) {
+                if (newValue.length) this.isShowFactsWrapper = true
+            },
+            '$store.getters.getMovieBloop'(newValue, oldValue) {
+                if (newValue.length) this.isShowBloopersWrapper = true
+            },
+            '$store.state.movieFullInfo'(newValue, oldValue) {
+                newValue.length === 0 ? this.isLoadingPage = true : this.isLoadingPage = false
+            },
+        }
+    }
+</script>
+
 <template>
+	<Header-Navigation></Header-Navigation>
+
+	<div
+			class="loader-wrapper"
+			v-if="isLoadingPage"
+	>
+		<div class="lds-ring">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+
 	<section class="movie__wrapper">
 		<div class="container user-container-movie">
 			<div class="movie">
@@ -8,10 +217,9 @@
 				<div class="movie__main movie-info col">
 					<div class="movie-info__header movie-info-header">
 						<h1 class="movie-info-header__title">{{movieFullInfo.nameRu}} ({{movieFullInfo.year}})</h1>
-						<h2 class="movie-info-header__subtitle">{{movieFullInfo.nameOriginal}}
-							{{movieFullInfo.nameOriginal !==
-							null ?
-							`(${movieFullInfo.ratingAgeLimits})` : movieFullInfo.ratingAgeLimits}}</h2>
+						<h2 class="movie-info-header__subtitle">
+							{{ movieFullInfo.nameOriginal }} {{ movieFullInfo.ratingAgeLimits }}
+						</h2>
 						<div class="movie-info-header__description">
 							{{movieFullInfo.shortDescription}}
 						</div>
@@ -144,7 +352,7 @@
 							</div>
 						</div>-->
 
-						<div class="table_row">
+						<div class="table_row" v-if="movieFullInfo.ratingAgeLimits">
 							<p class="table_col">Возраст</p>
 							<div class="table_col">
 								<p>{{movieFullInfo.ratingAgeLimits}}</p>
@@ -266,7 +474,7 @@
 							<br>
 							<p>{{movieFullInfo.ratingKinopoiskVoteCount}} оценок</p>
 						</div>
-						<div class="critics__imdb">
+						<div class="critics__imdb" v-if="movieFullInfo.ratingImdbVoteCount">
 							<p>
 								<span class="stong-text">
 									Imdb: {{movieFullInfo.ratingImdb}}&nbsp
@@ -278,9 +486,11 @@
 						</div>
 					</div>
 				</div>
-				<div class="movie-other__similar similar-movies">
+				<div class="movie-other__similar similar-movies"
+					 v-if="this.$store.state.similarMovies.total"
+				>
 					<button
-							@click="$router.push({name:'Similar'})"
+							@click=""
 							class="btn header header_link">
 						Если вам понравился этот фильм
 						<span style="margin-left: 8px;color: rgba(31,31,31,.4); font-weight: 500;">
@@ -322,7 +532,7 @@
 								<span v-if="item.nameRu.length === 0">{{item.nameOriginal}}</span>
 							</swiper-slide>
 							<swiper-slide
-									@click="$router.push({name:'Similar'})"
+									@click=""
 									class="carousel__item carousel-item carousel-item_last-elem"
 							>
 								<span style="font-size: 36px;">{{this.$store.state.similarMovies.total}}</span>
@@ -385,196 +595,6 @@
 		</div>
 	</section>
 </template>
-
-<script>
-    import {mapState, mapGetters} from 'vuex'
-    import {Navigation, A11y} from 'swiper';
-
-    import Movie_Reviews from '@/components/Movie_Reviews'
-
-    // Import Swiper Vue.js components
-    import {Swiper, SwiperSlide} from 'swiper/vue';
-
-    // Import Swiper styles
-    import 'swiper/css';
-    import 'swiper/css/navigation';
-
-    export default {
-        name: "Movie_Item-Full",
-        data() {
-            return {
-                staff: [],
-                director: '',
-                composer: '',
-                tabs: [
-                    {
-                        id: 1,
-                        name: 'Обзор'
-                    },
-                    {
-                        id: 2,
-                        name: 'Награды',
-                        src: 'Awards',
-                    },
-                    {
-                        id: 3,
-                        name: 'Премьеры',
-                        src: 'Distributions',
-                    },
-                    {
-                        id: 4,
-                        name: 'Изображения',
-                        src: 'Gallery',
-                    },
-                    {
-                        id: 5,
-                        name: 'Трейлеры',
-                    },
-                    /*{
-                        id: 6,
-                        name: 'Студии',
-                    },
-                    {
-                        id: 7,
-                        name: 'Связи',
-                    },*/
-                    {
-                        id: 8,
-                        name: 'Рецензии',
-                        src: 'Reviews'
-                    },
-                ],
-                ratingUser: [
-                    {
-                        id: 1,
-                    },
-                    {
-                        id: 2,
-                    },
-                    {
-                        id: 3,
-                    },
-                    {
-                        id: 4,
-                    },
-                    {
-                        id: 5,
-                    },
-                    {
-                        id: 6,
-                    },
-                    {
-                        id: 7,
-                    },
-                    {
-                        id: 8,
-                    },
-                    {
-                        id: 9,
-                    },
-                    {
-                        id: 10
-                    },
-                ].reverse(),
-
-                isShowFactsWrapper: false,
-                isShowBloopersWrapper: false,
-                isShowAllFacts: false,
-                isShowAllBlooper: false,
-            }
-        },
-        components: {
-            Movie_Reviews,
-            Swiper,
-            SwiperSlide,
-        },
-        setup() {
-            const onSwiper = (swiper) => {
-                //console.log(swiper);
-            };
-            const onSlideChange = () => {
-                //console.log('slide change');
-            };
-            return {
-                onSwiper,
-                onSlideChange,
-                modules: [Navigation, A11y],
-            };
-        },
-        methods: {
-            loadAPI(id) {
-                this.$store.dispatch('loadOneMovie', {payload: id})
-                this.$store.dispatch('loadStaff', id)
-                this.$store.dispatch('loadTrailerAndVideos', id)
-                this.$store.dispatch('loadSimilarMovies', id)
-                this.$store.dispatch('loadFacts', id)
-            },
-            moveToMovie(id) {
-                this.$router.push({name: 'Full-Item', params: {id: id}})
-                this.loadAPI(id)
-            }
-        },
-        computed: {
-            ...mapState(['movieFullInfo', 'actorsMovie', 'movieVideos', 'awards']),
-            ...mapGetters(
-                [
-                    'getDirector',
-                    'getComposer',
-                    'getWriters',
-                    'getProducers',
-                    'getOperators',
-                    'getDesigner',
-                    'getEditors',
-                    'getMovieFacts',
-                    'getMovieBloop',
-                ]
-            ),
-        },
-        beforeMount() {
-        },
-        mounted() {
-            setTimeout(() => {
-                let a = document.querySelectorAll("button[data-film], button[data-name]")
-                a.forEach(elem => {
-                    elem.addEventListener('mouseover', (event) => {
-                        if (event.target.dataset.film) {
-                            this.$store.dispatch('loadOneMovie', {
-                                payload: event.target.dataset.film.match(/\d/g).join(''),
-                                loadType: 'hover'
-                            })
-                        }
-                        if (event.target.dataset.name) {
-                            this.$store.dispatch('loadOneStaff', {
-                                payload: event.target.dataset.name.match(/\d/g).join(''),
-                                loadType: 'hover'
-                            })
-                        }
-                    })
-                })
-
-            }, 1000)
-
-            //Loading info about movie from API
-            this.loadAPI(this.$route.params.id)
-
-            let urlCDN = ['https://unpkg.com/@ungap/custom-elements-builtin', 'https://unpkg.com/x-frame-bypass']
-            for (const url of urlCDN) {
-                let scriptTag = document.createElement("script");
-                scriptTag.src = url
-                scriptTag.type = 'module'
-                document.getElementsByTagName('head')[0].appendChild(scriptTag);
-            }
-        },
-        watch: {
-            '$store.getters.getMovieFacts'(newValue, oldValue) {
-                if (newValue.length) this.isShowFactsWrapper = true
-            },
-            '$store.getters.getMovieBloop'(newValue, oldValue) {
-                if (newValue.length) this.isShowBloopersWrapper = true
-            },
-        }
-    }
-</script>
 
 <style scoped lang="scss">
 
@@ -653,7 +673,7 @@
 		display: flex;
 		justify-content: space-between;
 
-		margin-top: 50px;
+		//margin-top: 50px;
 
 		position: relative;
 		z-index: 5;
@@ -668,6 +688,8 @@
 		}
 
 		.movie-info {
+			width: 100%;
+
 			.movie-info-header {
 				&__title {
 					margin-bottom: 15px;
@@ -688,6 +710,7 @@
 			}
 
 			.about_movie {
+
 				margin-top: 30px;
 			}
 		}
@@ -1090,6 +1113,68 @@
 
 		p {
 			color: black;
+		}
+	}
+
+	//Loader
+
+	.loader-wrapper {
+		position: fixed;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+
+		z-index: 150;
+
+		background-color: black;
+	}
+
+	.lds-ring {
+		display: block;
+		position: relative;
+		top: 50%;
+		transform: translateY(-50%);
+
+
+		width: 80px;
+		height: 80px;
+
+		margin: 0 auto;
+
+	}
+
+	.lds-ring div {
+		box-sizing: border-box;
+		display: block;
+		position: absolute;
+		width: 64px;
+		height: 64px;
+		margin: 8px;
+		border: 2px solid #fff;
+		border-radius: 50%;
+		animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+		border-color: #f60 transparent transparent transparent;
+	}
+
+	.lds-ring div:nth-child(1) {
+		animation-delay: -0.45s;
+	}
+
+	.lds-ring div:nth-child(2) {
+		animation-delay: -0.3s;
+	}
+
+	.lds-ring div:nth-child(3) {
+		animation-delay: -0.15s;
+	}
+
+	@keyframes lds-ring {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
 		}
 	}
 </style>

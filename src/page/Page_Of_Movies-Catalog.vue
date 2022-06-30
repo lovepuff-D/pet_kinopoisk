@@ -1,14 +1,15 @@
 <template>
+	<Header-Navigation></Header-Navigation>
 	<Movies_Catalog></Movies_Catalog>
 </template>
 
 <script>
-	import Movies_Catalog from "@/components/Movies_Catalog";
+    import Movies_Catalog from "@/components/Movies_Catalog";
     export default {
         name: "Main_Page",
-		components: {
+        components: {
             Movies_Catalog
-		},
+        },
     }
 </script>
 
