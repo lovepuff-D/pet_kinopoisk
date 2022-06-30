@@ -168,6 +168,10 @@
 
             }, 1000)
 
+            setTimeout(function () {
+                alert('Фильм не загрузился? перезагрузи страницу - это временный баг')
+            }, 1000)
+
             //Loading info about movie from API
             this.loadAPI(this.$route.params.id)
 
