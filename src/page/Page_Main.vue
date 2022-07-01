@@ -16,21 +16,21 @@
         },
         methods: {
             filterMovies(filterName) {
-                this.$store.dispatch('testLoad', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
-                this.$store.dispatch('testLoad', {payload: 'TOP_250_BEST_FILMS', page: 1})
-                this.$store.dispatch('testLoad', {payload: 'TOP_AWAIT_FILMS', page: 1})
+                this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
+                this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_250_BEST_FILMS', page: 1})
+                this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_AWAIT_FILMS', page: 1})
             }
         },
         mounted() {
         },
         async created() {
-            this.listOfPopular = await this.$store.dispatch('testLoad', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
-            this.listOfBest = await this.$store.dispatch('testLoad', {payload: 'TOP_250_BEST_FILMS', page: 1})
-            this.listOfAwait = await this.$store.dispatch('testLoad', {payload: 'TOP_AWAIT_FILMS', page: 1})
+            this.listOfPopular = await this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
+            this.listOfBest = await this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_250_BEST_FILMS', page: 1})
+            this.listOfAwait = await this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_AWAIT_FILMS', page: 1})
         },
         watch: {
             'listOfPopular'(newValue) {
-                console.log(newValue)
+                //console.log(newValue)
             }
         },
     }

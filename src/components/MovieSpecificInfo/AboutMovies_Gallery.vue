@@ -88,8 +88,8 @@
             ...mapGetters(['getImages', 'getTypeImages', 'getPaginationForGallery']),
         },
         mounted() {
-            this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
-            this.$store.dispatch('loadTypeImages', this.$route.params.id)
+            //this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
+            //this.$store.dispatch('loadTypeImages', this.$route.params.id)
             this.$store.dispatch('loadImages', {
                 payload: this.$route.params.id,
                 type: this.$store.state.firstKnownTypeImage,

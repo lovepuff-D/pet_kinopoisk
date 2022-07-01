@@ -36,7 +36,7 @@
             ...mapGetters(['getAwards'])
         },
         mounted() {
-            this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
+            //this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
             this.$store.dispatch('loadAwards', this.$route.params.id)
         }
     }

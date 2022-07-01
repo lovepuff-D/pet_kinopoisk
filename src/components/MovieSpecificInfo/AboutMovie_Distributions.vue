@@ -31,7 +31,7 @@
             ...mapGetters(['getDistributions'])
         },
         mounted() {
-            this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
+            //this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
             this.$store.dispatch('loadDistributions', this.$route.params.id)
         },
         watch: {},

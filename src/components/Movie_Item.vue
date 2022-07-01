@@ -71,7 +71,7 @@
         methods: {
             showFullInfo(event, id) {
                 //console.log(event.target, 'show', event.relatedTarget, 'ушёл')
-                this.$store.dispatch('loadOneMovie', id)
+                //this.$store.dispatch('loadOneMovie', id)
                 this.isShowFullInfo = true
             },
             hideFullInfo(event) {

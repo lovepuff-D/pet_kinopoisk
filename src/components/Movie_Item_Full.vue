@@ -121,7 +121,7 @@
                 //this.$store.dispatch('loadTrailerAndVideos', id)
                 this.$store.dispatch('loadSimilarMovies', id)
                 this.$store.dispatch('loadFacts', id)
-                //this.$store.dispatch('loadAwards', id)
+                this.$store.dispatch('loadAwards', id)
             },
             moveToMovie(id) {
                 this.$router.push({name: 'Full-Item', params: {id: id}})
@@ -129,7 +129,7 @@
             }
         },
         computed: {
-            ...mapState(['movieFullInfo', 'actorsMovie', 'movieVideos', 'awards']),
+            ...mapState(['movieFullInfo', 'actorsMovie', 'awards']),
             ...mapGetters(
                 [
                     'getDirector',
@@ -147,7 +147,7 @@
         beforeMount() {
         },
         mounted() {
-            setTimeout(() => {
+            /*setTimeout(() => {
                 let a = document.querySelectorAll("button[data-film], button[data-name]")
                 a.forEach(elem => {
                     elem.addEventListener('mouseover', (event) => {
@@ -166,11 +166,7 @@
                     })
                 })
 
-            }, 1000)
-
-            setTimeout(function () {
-                alert('Фильм не загрузился? перезагрузи страницу - это временный баг')
-            }, 1000)
+            }, 1000)*/
 
             //Loading info about movie from API
             this.loadAPI(this.$route.params.id)
@@ -375,15 +371,19 @@
 					</div>
 				</div>
 				<div class="movie__right col">
-					<div>
-						<p>В главных ролях</p>
-						<p v-for="actors in actorsMovie.slice(0,10)"
-						   :key="actors.staffId"
+					<div class="list-of-person">
+						<p class="list-of-person__header">В главных ролях</p>
+						<div class="list-of-person__list list-of-person-list"
 						>
-							<a>
+							<a
+									v-for="actors in actorsMovie.slice(0,10)"
+									:key="actors.staffId"
+									@click="this.$router.push({name: 'Person', params: {id: actors.staffId}})"
+									class="list-of-person-list__item"
+							>
 								{{actors.nameRu}}
 							</a>
-						</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -721,6 +721,32 @@
 
 		.movie__right {
 			flex: 0 0 220px;
+
+
+			.list-of-person {
+				font-size: 13px;
+
+				&__header {
+					font-size: 16px;
+
+					margin-bottom: 15px;
+
+					font-weight: 700;
+				}
+
+				&__list {
+
+					.list-of-person-list__item {
+						display: block;
+
+						&:not(:last-child) {
+							margin-bottom: 7px;
+						}
+					}
+				}
+
+			}
+
 		}
 
 		.btn__link-to-kinopoisk {

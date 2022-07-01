@@ -1,16 +1,20 @@
 <script>
     import {mapState, mapGetters} from 'vuex'
+    import DropDown_List from '@/components/FunctionalComponent/DropDown_List'
 
     export default {
         name: "Staff_Item",
+        components: {
+            DropDown_List
+        },
         computed: {
             ...mapState({
                 person: state => state.module_person.person
             }),
-            ...mapGetters(['getGrowth', 'getBirthday'])
+            ...mapGetters(['getGrowth', 'getBirthday', 'getSortedBestFilms', 'getCountOfMovies'])
         },
         beforeCreate() {
-            this.$store.dispatch('loadOneStaff', {payload: 9144})
+            this.$store.dispatch('loadOneStaff', {payload: this.$route.params.id})
         }
     }
 </script>
@@ -76,7 +80,7 @@
 						<div class="table_row">
 							<p class="table_col">Всего фильмов</p>
 							<div class="table_col">
-								{{person.films.length}}
+								{{getCountOfMovies}}
 							</div>
 						</div>
 						<!--<div class="table_row">
@@ -215,24 +219,30 @@
 						</div>-->
 					</div>
 				</div>
-				<!--<div class="person__right col">
-					<div>
-						<p>В главных ролях</p>
-						<p v-for="bestFilm in person.films.slice(0,10)"
-						   :key="bestFilm.filmId"
-						>
-							<a>
+				<div class="person__right col">
+					<div class="best-movie">
+						<p class="best-movie__header">Лучшие фильмы</p>
+						<div class="best-movie__list best-movie-list">
+							<a
+									v-for="bestFilm in getSortedBestFilms"
+									:key="bestFilm.filmId"
+									class="best-movie-list__item"
+									@click="this.$router.push({name: 'Full-Item', params: {id: bestFilm.filmId}})"
+							>
 								{{bestFilm.nameRu ? bestFilm.nameRu : bestFilm.nameEn}}
 							</a>
-						</p>
+						</div>
 					</div>
-				</div>-->
+				</div>
 			</div>
-			<!--<div class="movie-background">
-				<img :src="movieFullInfo.coverUrl ? movieFullInfo.coverUrl : ''"
-					 alt="">
-				<div class="movie-background__gradient"></div>
-			</div>-->
+			<div class="person-other-info">
+				<div class="facts">
+					<DropDown_List
+							:facts="person.facts"
+					>
+					</DropDown_List>
+				</div>
+			</div>
 		</div>
 	</section>
 
@@ -271,10 +281,6 @@
 		&:last-child {
 			width: 80%;
 		}
-	}
-
-	.additional-info {
-		color: rgba(31,31,31,.4);
 	}
 
 	/*Main info about person*/
@@ -331,6 +337,30 @@
 
 		.person__right {
 			flex: 0 0 220px;
+
+			.best-movie {
+				font-size: 13px;
+
+				&__header {
+					font-size: 16px;
+
+					margin-bottom: 15px;
+
+					font-weight: 700;
+				}
+
+				&__list {
+
+					.best-movie-list__item {
+						display: block;
+
+						&:not(:last-child) {
+							margin-bottom: 7px;
+						}
+					}
+				}
+
+			}
 		}
 
 		.btn__link-to-kinopoisk {
@@ -364,41 +394,18 @@
 		p {
 			color: #333;
 		}
-	}
 
-	.movie-background {
-		position: absolute;
-		top: 0;
-		left: 0;
-
-		overflow: hidden;
-
-		width: 100%;
-		height: 100%;
-
-		img {
-			position: relative;
-			z-index: 1;
-
-			opacity: .2;
-			object-fit: cover;
-			object-position: top;
-		}
-
-		&__gradient {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			z-index: 2;
-
-
-			background-image: linear-gradient(180deg, transparent 36%, #000 96%);
-
-			@media screen and (max-width: 1280px) {
-				background-image: linear-gradient(180deg, transparent 0%, #000 96%);
-			}
+		.additional-info {
+			color: rgba(31, 31, 31, .4);
 		}
 	}
+
+	.person-other-info {
+		padding: 0 40px;
+
+		.facts {
+			margin-top: 55px;
+		}
+	}
+
 </style>

@@ -30,15 +30,15 @@
 		methods: {
             moveToMovie(id) {
                 this.$router.push({name: 'Full-Item', params: {id: id}})
-                this.loadAPI(id)
+                /*this.loadAPI(id)*/
             },
             loadAPI(id) {
-                this.$store.dispatch('loadOneMovie', {payload: id})
-                this.$store.dispatch('loadStaff', id)
-                this.$store.dispatch('loadTrailerAndVideos', id)
-                this.$store.dispatch('loadSimilarMovies', id)
-                this.$store.dispatch('loadFacts', id)
-                this.$store.dispatch('loadAwards', id)
+                /*this.$store.dispatch('loadOneMovie', {payload: id})*/
+                /*this.$store.dispatch('loadStaff', id)*/
+                /*this.$store.dispatch('loadTrailerAndVideos', id)*/
+                /*this.$store.dispatch('loadSimilarMovies', id)*/
+                /*this.$store.dispatch('loadFacts', id)*/
+                /*this.$store.dispatch('loadAwards', id)*/
             },
 		},
         components: {

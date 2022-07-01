@@ -262,7 +262,7 @@ export default createStore({
         },
 
         //По умолчанию топ фильмы
-        async testLoad({commit}, {payload, page}) {
+        async loadTopOfMovies({commit}, {payload, page}) {
             let url = 'https://kinopoiskapiunofficial.tech/api/v2.2/films/top?type=' + payload + '&page=' + page
             let response = await fetch(url, {
                 method: 'GET',
@@ -307,7 +307,6 @@ export default createStore({
 
         //Get bio about person
         async loadOneStaff({commit}, {payload, loadType = 'standard'}) {
-            payload = 9144
             let url = `https://kinopoiskapiunofficial.tech/api/v1/staff/${payload}`
             let response = await fetch(url, {
                 method: 'GET',
@@ -628,6 +627,16 @@ export default createStore({
                         return string
                     }
                 },
+                getSortedBestFilms(state) {
+                    if (state.person.length !== 0) {
+                        return state.person.films.filter(e => e.professionKey === 'ACTOR').sort((a, b) => b.rating - a.rating).slice(0, 10)
+                    }
+                },
+                getCountOfMovies(state) {
+                    if (state.person.length !== 0) {
+                        return state.person.films.length
+                    }
+                }
             }
         }
     }

@@ -31,7 +31,7 @@ const routes = [
     },
     {
         path: '/:id/person/',
-        name: 'person',
+        name: 'Person',
         component: Person_Item,
     },
     {
