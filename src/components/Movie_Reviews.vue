@@ -1,110 +1,3 @@
-<template>
-	<button
-			@click="$router.push({name:'Reviews'})"
-			class="header header_link btn"
-			v-if="isShowTitle"
-	>
-		Рецензии зрителей
-		<span class="arrow-right"></span>
-	</button>
-	<div class="reviews__wrapper">
-		<Btn_Create_Reviews></Btn_Create_Reviews>
-		<div class="reviews">
-			<div class="reviews-item">
-				<div
-						v-for="(item,index) in getReviews"
-						:key="item.kinopoiskId"
-						class="item"
-						:class="[item.type === 'POSITIVE' ? 'item_type-positive' : 'item_type-negative', item.type === 'NEUTRAL' ? 'item_type-neutral' : false]"
-				>
-					<template v-if="this.isLimitedPosts ? true : index < 10">
-						<div class="item__header item-header">
-							<div class="author">
-								<div class="author__picture"></div>
-								<div class="author__name">
-									{{item.author}}
-								</div>
-							</div>
-							<div class="all-info">
-								{{item.date}}
-							</div>
-						</div>
-						<div class="item__body item-body">
-							<div class="item-body__description" v-html="item.description">
-							</div>
-							<button
-									@click="showFullReview(item.kinopoiskId)"
-									:ref="'buttonShowAll' + item.kinopoiskId"
-									class="item-body_show-all btn">
-								показать всю рецензию
-							</button>
-						</div>
-						<div class="item__footer item-footer">
-							<div class="item-footer__users-rating users-rating">
-								<button
-										@click="incrementLike(item.kinopoiskId)"
-										class="users-rating__positive btn btn_set-rating">
-									<span class="btn_set-rating__icon"></span>
-									<span>Полезно</span>
-									<span class="btn_set-rating__counter">{{item.positiveRating}}</span>
-								</button>
-								<button
-										@click="discernmentLike(item.kinopoiskId)"
-										class="users-rating__negative btn btn_set-rating">
-									<span class="btn_set-rating__icon"></span>
-									<span>Нет</span>
-									<span class="btn_set-rating__counter">{{item.negativeRating}}</span>
-								</button>
-							</div>
-						</div>
-					</template>
-				</div>
-			</div>
-			<div class="reviews__sidebar reviews-sidebar">
-				<div class="reviews-sidebar__item reviews-sidebar__total">
-					<span>{{movies_reviews.total}}</span>
-					<span>Всего</span>
-				</div>
-				<div class="reviews-sidebar__item reviews-sidebar__positive">
-					<span>{{movies_reviews.totalPositiveReviews}}</span>
-					<span>Положительные</span>
-				</div>
-				<div class="reviews-sidebar__item reviews-sidebar__negative">
-					<span>{{movies_reviews.totalNegativeReviews}}</span>
-					<span>Отрицательные</span>
-				</div>
-				<div class="reviews-sidebar__item reviews-sidebar__neutral">
-					<span>{{movies_reviews.totalNeutralReviews}}</span>
-					<span>Нейтральные</span>
-				</div>
-			</div>
-			<div
-					v-if="isShowPagination && movies_reviews.totalPages > 1"
-					class="reviews__pagination reviews-pagination"
-			>
-				<button
-						@click="changePage(activePage - 1)"
-						class="reviews-pagination__arrow reviews-pagination__arrow_prev">
-				</button>
-				<template v-for="(e, index) of getPaginationForReviews">
-					<button
-							@click="changePage(e)"
-							v-if="(minPage < e && maxPage > e) "
-							class="reviews-pagination__item btn"
-							:class="{'active-page' : e === activePage}"
-					>
-						{{e}}
-					</button>
-				</template>
-				<button
-						@click="changePage(activePage + 1)"
-						class="reviews-pagination__arrow reviews-pagination__arrow_next">
-				</button>
-			</div>
-		</div>
-	</div>
-</template>
-
 <script>
     import {mapState, mapGetters} from 'vuex'
 
@@ -112,12 +5,13 @@
         name: "Movie_Reviews",
         data() {
             return {
-                limitedItemsOfReviews: [],
                 disableBtnLikes: false,
                 disableBtnDislikes: false,
                 activePage: 1,
                 minPage: 0,
                 maxPage: 4,
+
+                isShowComponent: true,
             }
         },
         props: {
@@ -184,19 +78,147 @@
         computed: {
             ...mapState({
                 movies_reviews: state => state.movies_reviews.moviesReviews
-			}),
+            }),
             ...mapGetters(['getReviews', 'getPaginationForReviews']),
         },
         mounted() {
             this.$store.dispatch('loadReviews', {payload: this.$route.params.id})
         },
+        watch: {
+            'updateKey'(newValue, oldValue) {
+                this.$store.dispatch('loadReviews', {payload: this.$route.params.id})
+            },
+            'movies_reviews'(newValue, oldValue) {
+                if (this.movies_reviews.total === 0) {
+                    this.isShowComponent = false
+                }
+            }
+        }
     }
 </script>
+
+<template>
+	<template v-if="isShowComponent">
+		<button
+				@click="$router.push({name:'Reviews'})"
+				class="header header_strong header_link btn"
+				v-if="isShowTitle"
+		>
+			Рецензии зрителей
+			<span class="arrow-right"></span>
+		</button>
+		<div class="reviews__wrapper">
+			<Btn_Create_Reviews></Btn_Create_Reviews>
+			<div class="reviews">
+				<div class="reviews-item">
+					<div
+							v-for="(item,index) in getReviews"
+							:key="item.kinopoiskId"
+							class="item"
+							:class="[item.type === 'POSITIVE' ? 'item_type-positive' : 'item_type-negative', item.type === 'NEUTRAL' ? 'item_type-neutral' : false]"
+					>
+						<template v-if="this.isLimitedPosts ? true : index < 10">
+							<div class="item__header item-header">
+								<div class="author">
+									<div class="author__picture"></div>
+									<div class="author__name">
+										{{item.author}}
+									</div>
+								</div>
+								<div class="all-info">
+									{{item.date}}
+								</div>
+							</div>
+							<div class="item__body item-body">
+								<div class="item-body__description" v-html="item.description">
+								</div>
+								<button
+										@click="showFullReview(item.kinopoiskId)"
+										:ref="'buttonShowAll' + item.kinopoiskId"
+										class="item-body_show-all btn">
+									показать всю рецензию
+								</button>
+							</div>
+							<div class="item__footer item-footer">
+								<div class="item-footer__users-rating users-rating">
+									<button
+											@click="incrementLike(item.kinopoiskId)"
+											class="users-rating__positive btn btn_set-rating">
+										<span class="btn_set-rating__icon"></span>
+										<span>Полезно</span>
+										<span class="btn_set-rating__counter">{{item.positiveRating}}</span>
+									</button>
+									<button
+											@click="discernmentLike(item.kinopoiskId)"
+											class="users-rating__negative btn btn_set-rating">
+										<span class="btn_set-rating__icon"></span>
+										<span>Нет</span>
+										<span class="btn_set-rating__counter">{{item.negativeRating}}</span>
+									</button>
+								</div>
+							</div>
+						</template>
+					</div>
+				</div>
+				<div class="reviews__sidebar reviews-sidebar">
+					<div class="reviews-sidebar__item reviews-sidebar__total">
+						<span>{{movies_reviews.total}}</span>
+						<span>Всего</span>
+					</div>
+					<div class="reviews-sidebar__item reviews-sidebar__positive">
+						<span>{{movies_reviews.totalPositiveReviews}}</span>
+						<span>Положительные</span>
+					</div>
+					<div class="reviews-sidebar__item reviews-sidebar__negative">
+						<span>{{movies_reviews.totalNegativeReviews}}</span>
+						<span>Отрицательные</span>
+					</div>
+					<div class="reviews-sidebar__item reviews-sidebar__neutral">
+						<span>{{movies_reviews.totalNeutralReviews}}</span>
+						<span>Нейтральные</span>
+					</div>
+				</div>
+				<div
+						v-if="isShowPagination && movies_reviews.totalPages > 1"
+						class="reviews__pagination reviews-pagination"
+				>
+					<button
+							@click="changePage(activePage - 1)"
+							class="reviews-pagination__arrow reviews-pagination__arrow_prev">
+					</button>
+					<template v-for="(e, index) of getPaginationForReviews">
+						<button
+								@click="changePage(e)"
+								v-if="(minPage < e && maxPage > e) "
+								class="reviews-pagination__item btn"
+								:class="{'active-page' : e === activePage}"
+						>
+							{{e}}
+						</button>
+					</template>
+					<button
+							@click="changePage(activePage + 1)"
+							class="reviews-pagination__arrow reviews-pagination__arrow_next">
+					</button>
+				</div>
+			</div>
+		</div>
+	</template>
+	<template v-else>
+		<p class="header">
+			Рецензий нет
+		</p>
+		<p style="color: rgba(0,0,0,.6); margin-bottom: 15px;">
+			Рецензии пустуют, стань первым, кто расскажет о фильме
+		</p>
+		<Btn_Create_Reviews></Btn_Create_Reviews>
+	</template>
+</template>
 
 <style scoped lang="scss">
 	$black: #222;
 
-	.header {
+	.header_strong {
 		font-size: 36px !important;
 	}
 

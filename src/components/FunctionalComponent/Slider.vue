@@ -60,10 +60,7 @@
         },
         watch: {
             'items'(newValue) {
-                setTimeout(() => {
-                    console.log('qrqr')
                     this.isShowSlider = true
-                }, 500)
             }
         },
     }

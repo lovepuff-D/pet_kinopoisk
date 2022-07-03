@@ -7,6 +7,9 @@
     import {Navigation, A11y} from 'swiper';
     import {Swiper, SwiperSlide} from 'swiper/vue';
 
+    //Подключение компонента
+    import DropDown_List from '@/components/FunctionalComponent/DropDown_List'
+
     // Import Swiper styles
     import 'swiper/css';
     import 'swiper/css/navigation';
@@ -94,12 +97,15 @@
                 isShowBloopersWrapper: false,
                 isShowAllFacts: false,
                 isShowAllBlooper: false,
+
+                updateKey: 0,
             }
         },
         components: {
             Movie_Reviews,
             Swiper,
             SwiperSlide,
+            DropDown_List,
         },
         setup() {
             const onSwiper = (swiper) => {
@@ -118,10 +124,9 @@
             loadAPI(id) {
                 this.$store.dispatch('loadOneMovie', {payload: id})
                 this.$store.dispatch('loadStaff', id)
-                //this.$store.dispatch('loadTrailerAndVideos', id)
                 this.$store.dispatch('loadSimilarMovies', id)
                 this.$store.dispatch('loadFacts', id)
-                this.$store.dispatch('loadAwards', id)
+                //this.$store.dispatch('loadTrailerAndVideos', id)
             },
             moveToMovie(id) {
                 this.$router.push({name: 'Full-Item', params: {id: id}})
@@ -187,6 +192,7 @@
                 if (newValue.length) this.isShowBloopersWrapper = true
             },
             '$store.state.movieFullInfo'(newValue, oldValue) {
+                this.updateKey++
                 newValue.length === 0 ? this.isLoadingPage = true : this.isLoadingPage = false
             },
         }
@@ -491,109 +497,84 @@
 					</div>
 				</div>
 				<div class="movie-other__similar similar-movies"
-					 v-if="this.$store.state.similarMovies.total"
 				>
-					<button
-							@click=""
-							class="btn header header_link">
-						Если вам понравился этот фильм
-						<span style="margin-left: 8px;color: rgba(31,31,31,.4); font-weight: 500;">
+					<template
+							v-if="this.$store.state.similarMovies.total"
+					>
+						<button
+								@click=""
+								class="btn header header_link">
+							Если вам понравился этот фильм
+							<span style="margin-left: 8px;color: rgba(31,31,31,.4); font-weight: 500;">
 							{{this.$store.state.similarMovies.total}}
 						</span>
-						<span class="arrow-right">
+							<span class="arrow-right">
 						</span>
-					</button>
-					<div class="similar-movies__carousel carousel">
-						<button
-								class="swiper-button-next">
 						</button>
-						<button
-								class="swiper-button-prev">
-						</button>
-						<swiper
-								:modules="modules"
-								:slides-per-view="5"
-								:space-between="20"
-								:speed="500"
-								:slidesPerGroup="4"
-								:navigation="{
+						<div class="similar-movies__carousel carousel">
+							<button
+									class="swiper-button-next">
+							</button>
+							<button
+									class="swiper-button-prev">
+							</button>
+							<swiper
+									:modules="modules"
+									:slides-per-view="5"
+									:space-between="20"
+									:speed="500"
+									:slidesPerGroup="4"
+									:navigation="{
 								    nextEl: '.swiper-button-next',
     								prevEl: '.swiper-button-prev',
 								}"
-								@swiper="onSwiper"
-								@slideChange="onSlideChange"
-						>
-							<swiper-slide
-									v-for="item in this.$store.state.similarMovies.items"
-									:key="item.filmId"
-									@click="moveToMovie(item.filmId)"
-									class="carousel__item carousel-item"
+									@swiper="onSwiper"
+									@slideChange="onSlideChange"
 							>
-								<div class="carousel-item__img">
-									<img :src="item.posterUrlPreview" alt="">
-								</div>
-								<span>{{item.nameRu}}</span>
-								<span v-if="item.nameRu.length === 0">{{item.nameOriginal}}</span>
-							</swiper-slide>
-							<swiper-slide
-									@click=""
-									class="carousel__item carousel-item carousel-item_last-elem"
-							>
-								<span style="font-size: 36px;">{{this.$store.state.similarMovies.total}}</span>
-								<span>всего</span>
-							</swiper-slide>
-						</swiper>
-					</div>
+								<swiper-slide
+										v-for="item in this.$store.state.similarMovies.items"
+										:key="item.filmId"
+										@click="moveToMovie(item.filmId)"
+										class="carousel__item carousel-item"
+								>
+									<div class="carousel-item__img">
+										<img :src="item.posterUrlPreview" alt="">
+									</div>
+									<span>{{item.nameRu}}</span>
+									<span v-if="item.nameRu.length === 0">{{item.nameOriginal}}</span>
+								</swiper-slide>
+								<swiper-slide
+										@click=""
+										class="carousel__item carousel-item carousel-item_last-elem"
+								>
+									<span style="font-size: 36px;">{{this.$store.state.similarMovies.total}}</span>
+									<span>всего</span>
+								</swiper-slide>
+							</swiper>
+						</div>
+					</template>
+					<p
+							class="header"
+							v-else
+					>
+						Нет похожих фильмов
+					</p>
+				</div>
+				<div class="movie-other__similar similar-movies"
+					 v-if="!this.$store.state.similarMovies.total"
+				>
 				</div>
 				<div class="movie-other__facts facts">
-					<div class="facts__wrapper" v-if="isShowFactsWrapper">
-						<div class="header">
-							Знаете ли вы, что…
-						</div>
-						<ul class="facts__list facts-list">
-							<template v-for="(list, index) in getMovieFacts">
-								<li
-										v-html="list.text"
-										v-if="index < 3 || isShowAllFacts"
-										class="facts-list__item"
-								>
-								</li>
-							</template>
-						</ul>
-						<button
-								@click="isShowAllFacts = true"
-								v-if="!isShowAllFacts"
-								class="facts_show-all btn"
+					<div class="facts">
+						<DropDown_List
+								:factsList="getMovieFacts"
+								:bloopersList="getMovieBloop"
 						>
-							Показать ещё
-						</button>
-					</div>
-					<div class="blooper__wrapper" v-if="isShowBloopersWrapper">
-						<div class="header">
-							Ошибки в фильме
-						</div>
-						<ul class="facts__list facts-list"
-						>
-							<template v-for="(list, index) in getMovieBloop">
-								<li
-										v-html="list.text"
-										v-if="index < 3 || isShowAllBlooper"
-										class="facts-list__item"
-								>
-								</li>
-							</template>
-						</ul>
-						<button
-								@click="isShowAllBlooper = true"
-								v-if="!isShowAllBlooper"
-								class="facts_show-all btn"
-						>
-							Показать ещё
-						</button>
+						</DropDown_List>
 					</div>
 				</div>
 				<div class="movie-other__reviews">
-					<Movie_Reviews></Movie_Reviews>
+						<Movie_Reviews :key="updateKey"></Movie_Reviews>
 				</div>
 			</div>
 		</div>

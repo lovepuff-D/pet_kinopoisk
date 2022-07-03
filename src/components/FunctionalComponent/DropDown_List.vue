@@ -9,24 +9,49 @@
                 isShowAllBlooper: false,
             }
         },
-		props: {
-            facts: {
+        props: {
+            factsList: {
                 type: Array,
-				required: true,
-			}
-		}
+                required: true,
+                default: [],
+
+            },
+            bloopersList: {
+                type: Array,
+                required: false,
+                default: [],
+            }
+        },
+        methods: {
+            setInitOption() {
+                this.isShowAllFacts = false
+                this.isShowAllBlooper = false
+            }
+        },
+        watch: {
+            //добавил ватчер для того, чтобы после смены фильма, раскрытый список снова сворачивался
+            factsList() {
+                this.setInitOption()
+            },
+            bloopersList() {
+                this.setInitOption()
+            },
+        },
     }
 </script>
 
 <template>
-	<div class="facts__wrapper" v-if="true">
+	<div
+			class="facts__wrapper"
+			v-if="factsList.length"
+	>
 		<div class="header">
 			Знаете ли вы, что…
 		</div>
 		<ul class="facts__list facts-list">
-			<template v-for="(list, index) in facts">
+			<template v-for="(list, index) in factsList">
 				<li
-						v-html="list"
+						v-html="list.text || list"
 						v-if="index < 3 || isShowAllFacts"
 						class="facts-list__item"
 				>
@@ -35,7 +60,33 @@
 		</ul>
 		<button
 				@click="isShowAllFacts = true"
-				v-if="!isShowAllFacts"
+				v-if="!isShowAllFacts && factsList.length > 3"
+				class="facts_show-all btn"
+		>
+			Показать ещё
+		</button>
+	</div>
+	<div
+			class="blooper__wrapper"
+			v-if="bloopersList.length"
+	>
+		<div class="header">
+			Ошибки в фильме
+		</div>
+		<ul class="facts__list facts-list"
+		>
+			<template v-for="(list, index) in bloopersList">
+				<li
+						v-html="list.text || list"
+						v-if="index < 3 || isShowAllBlooper"
+						class="facts-list__item"
+				>
+				</li>
+			</template>
+		</ul>
+		<button
+				@click="isShowAllBlooper = true"
+				v-if="!isShowAllBlooper && bloopersList.length > 3"
 				class="facts_show-all btn"
 		>
 			Показать ещё
@@ -55,7 +106,7 @@
 		font-weight: 700;
 	}
 
-	.facts__wrapper {
+	.facts__wrapper, .blooper__wrapper {
 
 		margin-bottom: 60px;
 

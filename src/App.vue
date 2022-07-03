@@ -22,6 +22,7 @@
                 handler(to, from) {
                     //console.log(to, from, 'isWorking?')
                     if (to.name === 'Full-Item') {
+                        window.scroll(0,0)
                         document.body.style.backgroundColor = 'White'
                     }
                 },

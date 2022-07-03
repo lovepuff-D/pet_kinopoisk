@@ -238,7 +238,7 @@
 			<div class="person-other-info">
 				<div class="facts">
 					<DropDown_List
-							:facts="person.facts"
+							:factsList="person.facts"
 					>
 					</DropDown_List>
 				</div>

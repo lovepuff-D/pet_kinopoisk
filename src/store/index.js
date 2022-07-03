@@ -236,14 +236,21 @@ export default createStore({
     actions: {
         //Поиск фильмов по параметрам
         async findMovies({commit}, {nameOfMovie, order = 'NUM_VOTE'}) {
+            //Добавляет аборт, если пользователь ввёл новый текст и ещё раз нажал на поиск
+
+            let abortFetch = new AbortController();
+            //console.log(abortFetch, 'abort')
+
             let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`
             //console.log(url)
+
             let response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
                     'Content-Type': 'application/json',
                 },
+                signal: abortFetch.signal
             })
             commit('addToMoviesFromSearchField', await response.json(), {module: 'header_navigation'})
         },
@@ -261,7 +268,7 @@ export default createStore({
             commit('ADD_MOVIES', await response.json())
         },
 
-        //По умолчанию топ фильмы
+        //По умолчанию топ фильмы без записи в state
         async loadTopOfMovies({commit}, {payload, page}) {
             let url = 'https://kinopoiskapiunofficial.tech/api/v2.2/films/top?type=' + payload + '&page=' + page
             let response = await fetch(url, {
@@ -444,17 +451,14 @@ export default createStore({
         //Список рецензий от пользователей
         async loadReviews({commit}, {payload, page = 1}) {
             let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/${payload}/reviews?page=${page}&order=USER_POSITIVE_RATING_DESC`
-            //Пришлось сделать искусственную задержку, т.е без неё выходит ошибка
-            setTimeout(async () => {
-                let response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
-                        'Content-Type': 'application/json',
-                    },
-                })
-                commit('ADD_REVIEWS', await response.json(), {module: 'movies_reviews'})
-            }, 300)
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+            commit('ADD_REVIEWS', await response.json(), {module: 'movies_reviews'})
         },
     },
     modules: {
@@ -537,12 +541,11 @@ export default createStore({
             }),
             mutations: {
                 ADD_REVIEWS(state, payload) {
-                    //console.log(payload, 'Список рецензий')
-                    state.moviesReviews = payload
-                    state.moviesReviews.items.forEach(e => {
+                    payload.items.forEach(e => {
                         e.disableBtnLikes = false
                         e.disableBtnDislikes = false
                     })
+                    state.moviesReviews = payload
                 },
                 UPDATE_POSITIVE_LIKES(state, {payload, increment = true}) {
                     //payloads = id
@@ -587,7 +590,9 @@ export default createStore({
                     }
                 },
                 getPaginationForReviews(state) {
-                    return state.moviesReviews.totalPages
+                    if (state.moviesReviews.length !== 0) {
+                        return state.moviesReviews.totalPages
+                    }
                 }
             }
         },
@@ -603,7 +608,7 @@ export default createStore({
                         //console.log('hover person', state.stuffHover)
                     }
                     if (loadType === 'standard') {
-                        console.log(payload)
+                        //console.log(payload)
                         state.person = payload
                     }
                 },

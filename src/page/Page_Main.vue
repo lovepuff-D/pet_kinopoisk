@@ -24,7 +24,10 @@
         mounted() {
         },
         async created() {
-            this.listOfPopular = await this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
+            this.listOfPopular = await this.$store.dispatch('loadTopOfMovies', {
+                payload: 'TOP_100_POPULAR_FILMS',
+                page: 1
+            })
             this.listOfBest = await this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_250_BEST_FILMS', page: 1})
             this.listOfAwait = await this.$store.dispatch('loadTopOfMovies', {payload: 'TOP_AWAIT_FILMS', page: 1})
         },
@@ -46,6 +49,9 @@
 	</button>-->
 	<div class="container">
 		<div class="main-page">
+
+			<span style="font-size: 20px;background-color: red;position: absolute;left: 0">Добавить аборт для fetch, при поиске фильма</span>
+
 			<div class="main-page__sidebar sidebar">
 				<Header_Links></Header_Links>
 			</div>
