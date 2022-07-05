@@ -49,9 +49,6 @@
 	</button>-->
 	<div class="container">
 		<div class="main-page">
-
-			<span style="font-size: 20px;background-color: red;position: absolute;left: 0">Добавить аборт для fetch, при поиске фильма</span>
-
 			<div class="main-page__sidebar sidebar">
 				<Header_Links></Header_Links>
 			</div>

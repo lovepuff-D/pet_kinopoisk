@@ -1,19 +1,16 @@
 <script>
     import {mapState, mapGetters} from 'vuex'
-    import loader from "vue-ui-preloader";
     import Header_Links from '@/components/Header_Links'
-
+	import Search_Of_Movie from '@/components/FunctionalComponent/Search_Of_Movie'
 
     export default {
         name: "Header-Navigation",
         components: {
-            Header_Links
+            Header_Links,
+            Search_Of_Movie
         },
         data() {
             return {
-                searchField: '',
-                isShowSearchForm: false,
-                isShowLoader: false,
                 isShowHeaderLinks: false,
             }
         },
@@ -24,32 +21,10 @@
             },
         },
         methods: {
-            findMovie(id) {
-                this.isShowLoader = true
-                this.isShowSearchForm = true
-                this.$store.commit('clearMoviesFromSearchField', {module: 'header_navigation'})
-                if (this.searchField.length === 0) return
-                this.$store.dispatch('findMovies', {nameOfMovie: id})
-            },
-            hideFiledOfResult(event) {
-                window.addEventListener('click', (event) => {
-                    if (event.path.filter(e => {
-                        if (e !== document && e !== window) {
-                            if (e.hasAttribute('data-closeModal')) {
-                                return true
-                            }
-                        }
-                    }).length === 0) {
-                        this.isShowSearchForm = false
-                    }
-                })
-            }
         },
         computed: {
-            ...mapGetters(['getMoviesFromSearchField'])
         },
         mounted() {
-            this.hideFiledOfResult()
         },
     }
 </script>
@@ -86,68 +61,8 @@
 						Telegram
 					</a>
 				</div>
-				<div class="header-navigation__form-of-search form-of-search"
-					 @click="hideFiledOfResult($event)"
-					 data-closeModal
-				>
-					<div class="form-of-search__input field-search"
-						 :class="{'form-of-search_active' :isShowSearchForm}"
-					>
-						<input type="text"
-							   class="field-search__input"
-							   placeholder="Фильмы, сериалы"
-							   v-model="searchField"
-							   @click="isShowSearchForm = true"
-							   @keyup.enter="findMovie(searchField)"
-						>
-						<button class="field-search__icon"
-								@click="findMovie(searchField)"
-						>
-							<svg class="styles_icon__1bYKL search-form-submit-button__icon"
-								 xmlns="http://www.w3.org/2000/svg"
-								 width="18" height="18" viewBox="0 0 18 18">
-								<path fill-rule="evenodd"
-									  d="M12.026 10.626L16 14.6 14.6 16l-3.974-3.974a5.5 5.5 0 1 1 1.4-1.4zM7.5 11.1a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2z"></path>
-							</svg>
-						</button>
-					</div>
-					<TransitionGroup name="showSearchField">
-						<div class="form-of-search__field-of-result field-of-result movies"
-							 v-if="isShowSearchForm"
-						>
-							<span v-if="getMoviesFromSearchField">Возможно, вы искали</span>
-							<div class="lds-ring"
-								 v-if="!getMoviesFromSearchField && isShowLoader && searchField"
-							>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-							</div>
-							<div class="movies__item movies-item"
-								 v-if="getMoviesFromSearchField"
-								 v-for="item in getMoviesFromSearchField"
-								 @click="$router.push({ name: 'Full-Item', params: { id: item.kinopoiskId}})"
-							>
-								<div class="movies-item__poster">
-									<img :src="item.posterUrlPreview" alt="Poster of Movie">
-								</div>
-								<div class="movies-item__info movie-item-info">
-									<div class="movie-item-info__name">{{item.nameRu}}</div>
-									<div class="movie-item-info__other-info item-info-other-info">
-										<span class="item-info-other-info__rating">{{item.ratingKinopoisk}}</span>
-										<span class="item-info-other-info__origin-name"
-											  v-if="item.nameOriginal">{{item.nameOriginal}}, </span>
-										<span class="item-info-other-info__year">{{item.year}}</span>
-									</div>
-								</div>
-							</div>
-							<div class="movies_empty-reply"
-							>
-								По вашему запросу ничего не найдено
-							</div>
-						</div>
-					</TransitionGroup>
+				<div class="header-navigation__form-of-search">
+					<Search_Of_Movie></Search_Of_Movie>
 				</div>
 				<div class="header-navigation__profile profile"></div>
 			</header>
@@ -254,173 +169,6 @@
 			}
 		}
 
-		.form-of-search {
-			height: 27px;
-			margin-left: 50px;
-
-			position: relative;
-
-			.field-search {
-				position: relative;
-
-				&__input {
-					width: 400px;
-
-					padding: 5px 10px;
-
-					background-color: rgba(242, 242, 242, .15);
-
-					color: white;
-					font-family: 'Montserrat', sans-serif;
-					font-size: 14px;
-
-					border-radius: $border-radius;
-					outline: none;
-					border: none;
-
-					&::placeholder {
-						color: white;
-						opacity: .7;
-					}
-				}
-
-				&__icon {
-					display: flex;
-					align-items: center;
-
-					position: absolute;
-					top: 0;
-					right: 5px;
-					bottom: 0;
-
-					svg {
-						transition: fill .2s;
-
-						fill: rgba(255, 255, 255, .6);
-					}
-
-					&:hover {
-						svg {
-							fill: white;
-						}
-					}
-				}
-			}
-
-			&__field-of-result {
-				position: absolute;
-				top: 35px;
-				z-index: 15;
-
-				width: 400px;
-				padding: 5px 0;
-				background-color: white;
-
-				border-radius: $border-radius;
-			}
-
-			.form-of-search_active {
-				.field-search__input {
-					color: black;
-					background-color: #f2f2f2;
-
-					transition: background-color .2s;
-
-					&::placeholder {
-						color: #000;
-					}
-				}
-
-				.field-search__icon {
-					svg {
-						fill: rgba(0, 0, 0, .4);
-					}
-
-					&:hover {
-						svg {
-							fill: rgba(0, 0, 0, .5);
-						}
-					}
-				}
-			}
-
-			//Анимация для TransitionGroup
-			.showSearchField-enter-active,
-			.showSearchField-leave-active {
-				transition: opacity 0.2s;
-			}
-
-			.showSearchField-enter-from,
-			.showSearchField-leave-to {
-				opacity: 0;
-			}
-		}
-
-		.movies {
-			.movies-item {
-				display: flex;
-				justify-content: flex-start;
-				align-items: center;
-
-				padding: 10px 15px;
-
-				text-align: left;
-
-				transition: background-color .2s;
-
-				cursor: pointer;
-
-				&:hover {
-					background-color: rgba(0, 0, 0, .03);
-				}
-
-				.movies-item__poster {
-					width: 32px;
-					height: 48px;
-
-					margin-right: 25px;
-				}
-
-				.movies-item__info {
-					overflow: hidden;
-
-					display: flex;
-					flex-direction: column;
-
-					font-size: 15px;
-
-					.movie-item-info__name {
-						font-weight: 500;
-						color: #333;
-					}
-
-					.movie-item-info__other-info {
-
-						.item-info-other-info__rating {
-							margin-right: 7px;
-
-							font-weight: 500;
-							color: #3bb33b;
-						}
-
-						.item-info-other-info__origin-name, .item-info-other-info__year {
-							font-size: 12px;
-							color: rgba(0, 0, 0, .6);
-							font-weight: 500;
-						}
-					}
-				}
-			}
-
-			.movies_empty-reply {
-				text-align: center;
-
-				padding: 50px 15px;
-
-				opacity: .6;
-			}
-		}
-
 		.profile {
 			width: 42px;
 			height: 42px;
@@ -437,50 +185,4 @@
 	.black-background {
 		background-color: #333;
 	}
-
-	//Loader
-	.lds-ring {
-		display: block;
-		position: relative;
-
-		width: 80px;
-		height: 80px;
-
-		margin: 50px auto 0;
-	}
-
-	.lds-ring div {
-		box-sizing: border-box;
-		display: block;
-		position: absolute;
-		width: 64px;
-		height: 64px;
-		margin: 8px;
-		border: 2px solid #fff;
-		border-radius: 50%;
-		animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-		border-color: #f60 transparent transparent transparent;
-	}
-
-	.lds-ring div:nth-child(1) {
-		animation-delay: -0.45s;
-	}
-
-	.lds-ring div:nth-child(2) {
-		animation-delay: -0.3s;
-	}
-
-	.lds-ring div:nth-child(3) {
-		animation-delay: -0.15s;
-	}
-
-	@keyframes lds-ring {
-		0% {
-			transform: rotate(0deg);
-		}
-		100% {
-			transform: rotate(360deg);
-		}
-	}
-
 </style>

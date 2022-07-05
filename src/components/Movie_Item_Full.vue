@@ -195,6 +195,14 @@
                 this.updateKey++
                 newValue.length === 0 ? this.isLoadingPage = true : this.isLoadingPage = false
             },
+            $route: {
+                handler(to, from) {
+                    //console.log(to, from, 'isWorking?')
+                    if (to.name === 'Full-Item') {
+                        this.loadAPI(this.$route.params.id)
+                    }
+                },
+            },
         }
     }
 </script>
@@ -233,14 +241,20 @@
 						   :href="movieFullInfo.webUrl">Смотреть на "Кинопоиске"</a>
 					</div>
 					<h3>О фильме</h3>
-					<div class="movie-info__about about_movie">
+					<div
+							v-if="movieFullInfo.year"
+							class="movie-info__about about_movie"
+					>
 						<div class="table_row">
 							<p class="table_col">Год производства</p>
 							<div class="table_col">
 								{{movieFullInfo.year}}
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="movieFullInfo.countries.length"
+								class="table_row"
+						>
 							<p class="table_col">Страна</p>
 							<div class="table_col">
 								<template v-for="(country, index) in movieFullInfo.countries">
@@ -251,7 +265,10 @@
 								</template>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="movieFullInfo.genres.length"
+								class="table_row"
+						>
 							<p class="table_col">Жанр</p>
 							<div class="table_col">
 								<template v-for="(genre, index) in movieFullInfo.genres">
@@ -270,7 +287,10 @@
 								{{`«${movieFullInfo.slogan}»`}}
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getDirector.length"
+								class="table_row"
+						>
 							<p class="table_col">Режиссер</p>
 							<div class="table_col">
 								<template v-for="(director, index) in this.getDirector.slice(0,3)"
@@ -281,7 +301,10 @@
 								</template>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getWriters.length"
+								class="table_row"
+						>
 							<p class="table_col">Сценарий</p>
 							<div class="table_col">
 								<template v-for="(writer, index) in this.getWriters.slice(0,3)"
@@ -293,7 +316,10 @@
 
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getProducers.length"
+								class="table_row"
+						>
 							<p class="table_col">Продюсер</p>
 							<div class="table_col">
 								<template v-for="(producer, index) in this.getProducers.slice(0,3)"
@@ -304,7 +330,10 @@
 								</template>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getOperators.length"
+								class="table_row"
+						>
 							<p class="table_col">Оператор</p>
 							<div class="table_col">
 								<template v-for="(operator, index) in this.getOperators.slice(0,3)"
@@ -315,7 +344,10 @@
 								</template>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getComposer.length"
+								class="table_row"
+						>
 							<p class="table_col">Композитор</p>
 							<div class="table_col">
 								<template v-for="(composer, index) in this.getComposer.slice(0,3)"
@@ -326,7 +358,10 @@
 								</template>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getDesigner.length"
+								class="table_row"
+						>
 							<p class="table_col">Художник</p>
 							<div class="table_col">
 								<template v-for="(design, index) in this.getDesigner.slice(0,3)"
@@ -337,7 +372,10 @@
 								</template>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getEditors.length"
+								class="table_row"
+						>
 							<p class="table_col">Монтаж</p>
 							<div class="table_col">
 								<template v-for="(editor, index) in this.getEditors.slice(0,3)"
@@ -365,8 +403,8 @@
 							</div>
 						</div>
 						<div
-								class="table_row"
 								v-if="movieFullInfo.filmLength"
+								class="table_row"
 						>
 							<p class="table_col">Время</p>
 							<div class="table_col">
@@ -574,7 +612,7 @@
 					</div>
 				</div>
 				<div class="movie-other__reviews">
-						<Movie_Reviews :key="updateKey"></Movie_Reviews>
+					<Movie_Reviews :key="updateKey"></Movie_Reviews>
 				</div>
 			</div>
 		</div>

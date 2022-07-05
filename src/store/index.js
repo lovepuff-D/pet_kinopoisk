@@ -241,7 +241,9 @@ export default createStore({
             let abortFetch = new AbortController();
             //console.log(abortFetch, 'abort')
 
-            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`
+            /*let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`*/
+
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${nameOfMovie}&page=1`
             //console.log(url)
 
             let response = await fetch(url, {
@@ -300,6 +302,7 @@ export default createStore({
 
         //Staff который работал над фильмом
         async loadStaff({commit}, payload) {
+            console.log('qrewr')
             let url = `https://kinopoiskapiunofficial.tech/api/v1/staff?filmId=${payload}`
             //console.log(url, 'url loadStaff')
             let response = await fetch(url, {
@@ -477,8 +480,17 @@ export default createStore({
             actions: {},
             getters: {
                 getMoviesFromSearchField(state) {
+                    if (state.moviesFromSearchField.films) {
+                        //console.log(state.moviesFromSearchField)
+                        return state.moviesFromSearchField.films.slice(1)
+                    }
+                },
+                getMostPossibleMoviesFromSearchField(state) {
                     //console.log(state.moviesFromSearchField.items)
-                    return state.moviesFromSearchField.items
+                    if (state.moviesFromSearchField.films) {
+                        console.log(state.moviesFromSearchField.films[0])
+                        return state.moviesFromSearchField.films[0]
+                    }
                 }
             }
         },
