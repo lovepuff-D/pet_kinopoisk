@@ -10,8 +10,11 @@ import Movie_Reviews_From_Tab from "@/page/Movie_Reviews_From_Tab"
 
 import Main_Page from "@/page/Page_Main";
 import Catalog from "@/page/Page_Of_Movies-Catalog";
+import AdvancedSearch_Of_Movies from "@/page/AdvancedSearch_Of_Movies";
 
 import Person_Item from "@/components/Person_Item";
+
+import NotFound from "@/components/404";
 
 const routes = [
     {
@@ -58,6 +61,16 @@ const routes = [
         path: '/:id/reviews',
         name: 'Reviews',
         component: Movie_Reviews_From_Tab,
+    },
+    {
+        path: '/advancedSearch',
+        name: 'AdvancedSearch',
+        component: AdvancedSearch_Of_Movies,
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound
     },
 ]
 

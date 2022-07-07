@@ -11,7 +11,7 @@
             ...mapState({
                 person: state => state.module_person.person
             }),
-            ...mapGetters(['getGrowth', 'getBirthday', 'getSortedBestFilms', 'getCountOfMovies'])
+            ...mapGetters(['getGrowth', 'getBirthday', 'getDeathDate', 'getSortedBestFilms', 'getCountOfMovies'])
         },
         beforeCreate() {
             this.$store.dispatch('loadOneStaff', {payload: this.$route.params.id})
@@ -43,13 +43,19 @@
 					</div>
 					<h3>О персоне</h3>
 					<div class="person-header__about about_person">
-						<div class="table_row">
+						<div
+								v-if="person.profession"
+								class="table_row"
+						>
 							<p class="table_col">Карьера</p>
 							<div class="table_col">
 								{{person.profession}}
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getGrowth !== 0"
+								class="table_row"
+						>
 							<p class="table_col">Рост</p>
 							<div class="table_col">
 								<span class="additional-info">
@@ -57,27 +63,43 @@
 								</span>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getBirthday"
+								class="table_row"
+						>
 							<p class="table_col">Дата рождения</p>
 							<div class="table_col">
 								{{getBirthday}}
-								<span class="additional-info">{{`${person.age} + 'лет'`}}</span>
+								<span
+										v-if="!getDeathDate"
+										class="additional-info">
+									{{`${person.age} лет`}}
+								</span>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getDeathDate"
+								class="table_row"
+						>
 							<p class="table_col">Дата Смерти</p>
 							<div class="table_col">
-								{{getBirthday}}
+								{{getDeathDate}}
 								<span class="additional-info">{{`${person.age} + 'лет'`}}</span>
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="person.birthplace"
+								class="table_row"
+						>
 							<p class="table_col">Место рождения</p>
 							<div class="table_col">
 								{{person.birthplace}}
 							</div>
 						</div>
-						<div class="table_row">
+						<div
+								v-if="getCountOfMovies"
+								class="table_row"
+						>
 							<p class="table_col">Всего фильмов</p>
 							<div class="table_col">
 								{{getCountOfMovies}}

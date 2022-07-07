@@ -234,12 +234,8 @@ export default createStore({
 
     },
     actions: {
-        //Поиск фильмов по параметрам
-        async findMovies({commit}, {nameOfMovie, order = 'NUM_VOTE'}) {
-            //Добавляет аборт, если пользователь ввёл новый текст и ещё раз нажал на поиск
-
-            let abortFetch = new AbortController();
-            //console.log(abortFetch, 'abort')
+        //Поиск фильмов по ключевому слову
+        async findMoviesByKeyword({commit}, {nameOfMovie, order = 'NUM_VOTE'}) {
 
             /*let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`*/
 
@@ -252,9 +248,22 @@ export default createStore({
                     'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
                     'Content-Type': 'application/json',
                 },
-                signal: abortFetch.signal
             })
             commit('addToMoviesFromSearchField', await response.json(), {module: 'header_navigation'})
+        },
+
+        //Поиск фильмов по ключевому фильтрам
+        async findMoviesByFilters({commit}, {nameOfMovie, order = 'NUM_VOTE'}) {
+
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`
+
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
         },
 
         //По умолчанию топ фильмы
@@ -302,7 +311,6 @@ export default createStore({
 
         //Staff который работал над фильмом
         async loadStaff({commit}, payload) {
-            console.log('qrewr')
             let url = `https://kinopoiskapiunofficial.tech/api/v1/staff?filmId=${payload}`
             //console.log(url, 'url loadStaff')
             let response = await fetch(url, {
@@ -629,6 +637,7 @@ export default createStore({
             getters: {
                 getGrowth(state) {
                     if (state.person.length !== 0) {
+                        if (!state.person.growth) return 0
                         let a = String(state.person.growth).split('')
                         a.splice(1, 0, '.')
                         return a.join('')
@@ -636,17 +645,31 @@ export default createStore({
                 },
                 getBirthday(state, getters, rootState) {
                     if (state.person.length !== 0) {
+                        if (!state.person.birthday) return
                         let string = state.person.birthday
                         let fullDate = string.split(/-/).reverse().join('-')
                         let month = string.split(/-/).reverse()[1]
                         string = fullDate.replace(/-[\d]{2}/, '-' + rootState.listOfMonth[1][month - 1])
                         string = string.replace(/-/g, ' ')
                         return string
+
                     }
+                },
+                getDeathDate(state, getters, rootState) {
+                    if (state.person.length !== 0) {
+                        if (!state.person.death) return
+                            let string = state.person.death
+                            let fullDate = string.split(/-/).reverse().join('-')
+                            let month = string.split(/-/).reverse()[1]
+                            string = fullDate.replace(/-[\d]{2}/, '-' + rootState.listOfMonth[1][month - 1])
+                            string = string.replace(/-/g, ' ')
+                            return string
+                        } else return null
                 },
                 getSortedBestFilms(state) {
                     if (state.person.length !== 0) {
-                        return state.person.films.filter(e => e.professionKey === 'ACTOR').sort((a, b) => b.rating - a.rating).slice(0, 10)
+                        /*return state.person.films.filter(e => e.professionKey === 'ACTOR').sort((a, b) => b.rating - a.rating).slice(0, 10)*/
+                        return state.person.films.sort((a, b) => b.rating - a.rating).slice(0, 10)
                     }
                 },
                 getCountOfMovies(state) {

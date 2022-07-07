@@ -17,7 +17,7 @@
                 this.isShowSearchForm = true
                 this.$store.commit('clearMoviesFromSearchField', {module: 'header_navigation'})
                 if (this.searchField.length === 0) return
-                this.$store.dispatch('findMovies', {nameOfMovie: id})
+                this.$store.dispatch('findMoviesByKeyword', {nameOfMovie: id})
             },
             hideFiledOfResult(event) {
                 window.addEventListener('click', (event) => {
@@ -63,10 +63,19 @@
 				   @click="isShowSearchForm = true"
 				   @keyup.enter="findMovie(searchField)"
 			>
+			<button class="field-search__icon field-search__icon_filter"
+					@click="$router.push({name: 'AdvancedSearch'})"
+			>
+				<svg class="search-form-submit-button__icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+					 viewBox="0 0 18 18">
+					<path fill-rule="evenodd"
+						  d="M5.995 10.3A2.7 2.7 0 0 1 8.504 12H17v2H8.504a2.7 2.7 0 0 1-5.018 0H1v-2h2.486a2.7 2.7 0 0 1 2.509-1.7zm0 1.7a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm5.997-8.7A2.7 2.7 0 0 1 14.5 5H17v2h-2.5a2.7 2.7 0 0 1-5.017 0H1V5h8.483a2.7 2.7 0 0 1 2.509-1.7zm0 1.7a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"></path>
+				</svg>
+			</button>
 			<button class="field-search__icon"
 					@click="findMovie(searchField)"
 			>
-				<svg class="styles_icon__1bYKL search-form-submit-button__icon"
+				<svg class="search-form-submit-button__icon"
 					 xmlns="http://www.w3.org/2000/svg"
 					 width="18" height="18" viewBox="0 0 18 18">
 					<path fill-rule="evenodd"
@@ -146,6 +155,7 @@
 						Для поиска нажмите Enter
 					</div>
 					<button
+							@click="$router.push({name: 'AdvancedSearch'})"
 							class="btn movies__btn_show-all"
 							v-if="moviesFromSearchField.searchFilmsCountResult > 0"
 					>
@@ -220,6 +230,10 @@
 					svg {
 						fill: white;
 					}
+				}
+
+				&_filter {
+					right: 30px;
 				}
 			}
 		}
