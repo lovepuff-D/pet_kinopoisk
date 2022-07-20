@@ -2,10 +2,14 @@
     import {mapState, mapGetters} from 'vuex'
     import DropDown_List from '@/components/FunctionalComponent/DropDown_List'
 
+    import loaderFullscreen from '@/components/FunctionalComponent/Loader_Fullscreen'
+
+
     export default {
         name: "Staff_Item",
         components: {
-            DropDown_List
+            DropDown_List,
+            loaderFullscreen
         },
         computed: {
             ...mapState({
@@ -21,6 +25,8 @@
 
 <template>
 	<Header-Navigation></Header-Navigation>
+
+	<loaderFullscreen v-if="person.length === 0"/>
 
 	<section class="person__wrapper">
 		<div class="container user-container-person">

@@ -59,8 +59,12 @@ export default createStore({
                 'Ноября',
                 'Декабря',
             ],
-        }
+        },
 
+        //Список акутальных жанров
+        listOfGenresOfMovies: {},
+        //Список стран
+        listOfCountries: {},
     }),
     getters: {
         getDirector(state) {
@@ -128,7 +132,7 @@ export default createStore({
             if (state.distributions.length !== 0) {
                 return state.distributions.items.filter(e => {
                     if (e.type === 'WORLD_PREMIER' || e.type === 'PREMIERE') {
-                        console.log(e)
+                        //console.log(e)
                         //ревёрсим дату, вычисляем месяц
                         let fullDate = e.date.split(/-/).reverse().join('-')
                         let month = e.date.split(/-/).reverse()[1]
@@ -156,7 +160,7 @@ export default createStore({
         },
 
         getPaginationForGallery: (state) => {
-            console.log(state.imagesOfMovie.totalPages)
+            //console.log(state.imagesOfMovie.totalPages)
             return state.imagesOfMovie.totalPages
         },
     },
@@ -232,6 +236,11 @@ export default createStore({
             state.similarMovies = payload
         },
 
+        ADD_LIST_OF_GENRES_AND_COUNTRIES(state, payload) {
+            state.listOfGenresOfMovies = payload.genres
+            state.listOfCountries = payload.countries
+        }
+
     },
     actions: {
         //Поиск фильмов по ключевому слову
@@ -252,10 +261,27 @@ export default createStore({
             commit('addToMoviesFromSearchField', await response.json(), {module: 'header_navigation'})
         },
 
-        //Поиск фильмов по ключевому фильтрам
-        async findMoviesByFilters({commit}, {nameOfMovie, order = 'NUM_VOTE'}) {
+        //Поиск фильмов по различным фильтрам
+        async findMoviesByFilters(
+            {
+                commit,
+                state
+            },
+            {
+                keyword = '',
+                yearFrom = '1000',
+                yearTo = '3000',
+                genre = '',
+                country = '',
+                order = 'NUM_VOTE',
+                page = 1,
+            }
+        ) {
 
-            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?order=${order}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=1000&yearTo=3000&keyword=${nameOfMovie}`
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films?genres=${genre}&order=${order}&countries=${country}&type=ALL&ratingFrom=0&ratingTo=10&yearFrom=${yearFrom}&yearTo=${yearTo}&keyword=${keyword}&page=${page}`
+
+            commit('CHANGE_STATUS_OF_QUERY', false, {module: 'module_advancedSearch'})
+
 
             let response = await fetch(url, {
                 method: 'GET',
@@ -264,6 +290,27 @@ export default createStore({
                     'Content-Type': 'application/json',
                 },
             })
+
+
+            if (response) {
+                commit('CHANGE_STATUS_OF_QUERY', true, {module: 'module_advancedSearch'})
+            }
+            commit('ADD_RESULT_OF_SEARCH', await response.json(), {module: 'module_advancedSearch'})
+        },
+
+        //Загрузка актуальных жанров
+        async requestGenres({commit}) {
+            let url = `https://kinopoiskapiunofficial.tech/api/v2.2/films/filters`
+
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-API-KEY': '92e8d301-bae3-4836-9132-48a28441ad97',
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            commit('ADD_LIST_OF_GENRES_AND_COUNTRIES', await response.json())
         },
 
         //По умолчанию топ фильмы
@@ -325,6 +372,12 @@ export default createStore({
 
         //Get bio about person
         async loadOneStaff({commit}, {payload, loadType = 'standard'}) {
+
+            commit('ADD_ONE_ACTORS', {
+                payload: [],
+                loadType: loadType
+            }, {module: ['person']})
+
             let url = `https://kinopoiskapiunofficial.tech/api/v1/staff/${payload}`
             let response = await fetch(url, {
                 method: 'GET',
@@ -333,10 +386,11 @@ export default createStore({
                     'Content-Type': 'application/json',
                 },
             })
-            commit('ADD_ONE_ACTORS', {
-                payload: await response.json(),
-                loadType: loadType
-            }, {module: ['person']})
+
+                commit('ADD_ONE_ACTORS', {
+                    payload: await response.json(),
+                    loadType: loadType
+                }, {module: ['person']})
         },
 
         //Загрузка трейлеров и видео
@@ -658,13 +712,13 @@ export default createStore({
                 getDeathDate(state, getters, rootState) {
                     if (state.person.length !== 0) {
                         if (!state.person.death) return
-                            let string = state.person.death
-                            let fullDate = string.split(/-/).reverse().join('-')
-                            let month = string.split(/-/).reverse()[1]
-                            string = fullDate.replace(/-[\d]{2}/, '-' + rootState.listOfMonth[1][month - 1])
-                            string = string.replace(/-/g, ' ')
-                            return string
-                        } else return null
+                        let string = state.person.death
+                        let fullDate = string.split(/-/).reverse().join('-')
+                        let month = string.split(/-/).reverse()[1]
+                        string = fullDate.replace(/-[\d]{2}/, '-' + rootState.listOfMonth[1][month - 1])
+                        string = string.replace(/-/g, ' ')
+                        return string
+                    } else return null
                 },
                 getSortedBestFilms(state) {
                     if (state.person.length !== 0) {
@@ -677,6 +731,27 @@ export default createStore({
                         return state.person.films.length
                     }
                 }
+            }
+        },
+        module_advancedSearch: {
+            state: () => ({
+                resultOfSearch: [],
+                lastQueryOfSearch: null,
+                statusOfQuery: null,
+            }),
+            mutations: {
+                ADD_RESULT_OF_SEARCH(state, payload) {
+                    //console.log(payload)
+                    state.resultOfSearch = payload
+                },
+                ADD_LAST_QUERY_OF_SEARCH(state, payload) {
+                    //console.log('mutation', payload)
+                    state.lastQueryOfSearch = payload
+                },
+                CHANGE_STATUS_OF_QUERY(state, payload) {
+                    state.statusOfQuery = payload
+                },
+
             }
         }
     }

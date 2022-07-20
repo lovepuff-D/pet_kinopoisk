@@ -47,7 +47,7 @@
 	>
 		Перейти в каталог
 	</button>-->
-	<div class="container">
+	<div class="container user-container-main">
 		<div class="main-page">
 			<div class="main-page__sidebar sidebar">
 				<Header_Links></Header_Links>
@@ -96,6 +96,11 @@
 
 <style scoped lang="scss">
 	@import "../scss/CommonStyle_For_Movie";
+
+	.user-container-main {
+		margin: 0 auto;
+		box-shadow: none;
+	}
 
 	.toCatalog {
 		font-size: 55px;

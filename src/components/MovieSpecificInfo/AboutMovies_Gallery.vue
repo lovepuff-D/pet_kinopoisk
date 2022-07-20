@@ -1,54 +1,13 @@
-<template>
-	<section>
-		<div class="gallery__wrapper">
-			<div class="container">
-				<div class="gallery">
-					<div class="gallery__tabs gallery-tabs">
-						<button
-								v-for="elem in getTypeImages"
-								@click="changeTab(elem.typeEng)"
-								class="gallery-tabs__item btn"
-								:class="{'tab_active' : elem.typeEng === activeTab}"
-						>
-							{{elem.typeRu}} {{elem.total}}
-						</button>
-					</div>
-					<div class="gallery__images grid">
-						<div
-								v-for="image in getImages"
-								:key="image.previewUrl"
-								class="gallery__images_item grid-item grid-sizer"
-						>
-							<img :src="image.previewUrl" alt="">
-						</div>
-						<!--Не удалять, для работы с Masonry-->
-						<div class="gutter-sizer"></div>
-						<!----------------->
-					</div>
-					<div
-							v-if="getPaginationForGallery !== 1"
-							class="gallery__pagination gallery-pagination">
-						<button v-for="e of getPaginationForGallery"
-								@click="changePage(e)"
-								class="gallery-pagination__item btn"
-								:class="{'active-page' : e === activePage}"
-						>
-							{{e}}
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</section>
-</template>
-
 <script>
     import {mapState, mapGetters} from "vuex";
     import Masonry from 'masonry-layout';
+    import Pagination from '@/components/FunctionalComponent/Pagination'
 
     export default {
         name: "AboutMovies_Gallery",
-        components: {},
+        components: {
+            Pagination
+        },
         data() {
             return {
                 activeTab: '',
@@ -111,6 +70,46 @@
         }
     }
 </script>
+
+<template>
+	<section>
+		<div class="gallery__wrapper">
+			<div class="container">
+				<div class="gallery">
+					<div class="gallery__tabs gallery-tabs">
+						<button
+								v-for="elem in getTypeImages"
+								@click="changeTab(elem.typeEng)"
+								class="gallery-tabs__item btn"
+								:class="{'tab_active' : elem.typeEng === activeTab}"
+						>
+							{{elem.typeRu}} {{elem.total}}
+						</button>
+					</div>
+					<div class="gallery__images grid">
+						<div
+								v-for="image in getImages"
+								:key="image.previewUrl"
+								class="gallery__images_item grid-item grid-sizer"
+						>
+							<img :src="image.previewUrl" alt="">
+						</div>
+						<!--Не удалять, для работы с Masonry-->
+						<div class="gutter-sizer"></div>
+						<!----------------->
+					</div>
+					<div class="pagination__wrapper">
+						<Pagination
+								@changePage="changePage"
+								:totalPages="getPaginationForGallery"
+						>
+						</Pagination>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</template>
 
 <style scoped lang="scss">
 
@@ -176,39 +175,13 @@
 			}
 		}
 
-		&__pagination {
+		.pagination__wrapper {
 			display: flex;
 			justify-content: center;
-			align-items: center;
 
 			width: 100%;
-
-
-			.gallery-pagination__item {
-				width: 45px;
-				height: 45px;
-
-				padding: 5px;
-
-				border-radius: 50%;
-
-				transition: background-color .2s;
-
-				&:not(:last-child) {
-					margin-right: 10px;
-				}
-
-				&:hover {
-					background-color: #e6e6e6;
-				}
-			}
-
-			.active-page {
-				background-color: $black !important;
-				color: white;
-			}
+			margin-top: 55px;
 		}
-
 	}
 
 </style>

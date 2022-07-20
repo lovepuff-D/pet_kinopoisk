@@ -73,6 +73,10 @@
 <style scoped lang="scss">
 	@import "../scss/CommonStyle_For_Movie";
 
+	.container {
+		margin: 0 auto;
+	}
+
 	$border-radius: 3px;
 
 	.header-navigation__wrapper {

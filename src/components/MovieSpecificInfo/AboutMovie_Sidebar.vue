@@ -1,5 +1,8 @@
 <template>
-	There's will be sidebar
+
+	<div class="sidebar">
+		There's will be sidebar
+	</div>
 </template>
 
 <script>
@@ -9,4 +12,7 @@
 </script>
 
 <style scoped lang="scss">
+	.sidebar {
+		min-height: 500px;
+	}
 </style>

@@ -15,16 +15,12 @@
         },
         mounted() {
             this.$store.dispatch('loadMovies', {payload: 'TOP_100_POPULAR_FILMS', page: 1})
-			document.body.style.backgroundColor = '#f5f6f6'
+            this.$store.dispatch('requestGenres')
         },
         watch: {
             $route: {
                 handler(to, from) {
                     //console.log(to, from, 'isWorking?')
-                    if (to.name === 'Full-Item') {
-                        window.scroll(0,0)
-                        document.body.style.backgroundColor = 'White'
-                    }
                 },
             },
         }
@@ -55,7 +51,7 @@
 		margin: 0;
 		height: 100vh;
 		//background-color: #f5f6f6;
-		background-color: white;
+		background-color: rgb(245, 246, 246);
 	}
 
 	/*---------------------------*/
@@ -86,6 +82,10 @@
 
 	img {
 		max-width: 100%;
+	}
+
+	input:focus {
+		outline: none;
 	}
 
 	/*---------------------------*/

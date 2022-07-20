@@ -3,6 +3,9 @@
 
     import Movie_Reviews from '@/components/Movie_Reviews'
 
+	//Import component loader
+	import loaderFullscreen from '@/components/FunctionalComponent/Loader_Fullscreen'
+
     // Import Swiper Vue.js components
     import {Navigation, A11y} from 'swiper';
     import {Swiper, SwiperSlide} from 'swiper/vue';
@@ -106,6 +109,7 @@
             Swiper,
             SwiperSlide,
             DropDown_List,
+            loaderFullscreen
         },
         setup() {
             const onSwiper = (swiper) => {
@@ -126,15 +130,35 @@
                 this.$store.dispatch('loadStaff', id)
                 this.$store.dispatch('loadSimilarMovies', id)
                 this.$store.dispatch('loadFacts', id)
+
+                //т.к api не пользоваляеть делать много запросов, делаем таймаут для последущих загрузок
+                setTimeout(() => {
+                    this.$store.dispatch('loadAwards', id)
+                    this.$store.dispatch('loadDistributions', id)
+                    this.$store.dispatch('loadImages', {payload: id,})
+                }, 1100)
                 //this.$store.dispatch('loadTrailerAndVideos', id)
             },
             moveToMovie(id) {
                 this.$router.push({name: 'Full-Item', params: {id: id}})
                 this.loadAPI(id)
-            }
+            },
+            moveToPerson(id) {
+                this.$router.push({name: 'Person', params: {id: id}})
+            },
+            disableTabs(tab) {
+                return ((this.awards.total === 0) && tab.id === 2)
+					|| ((this.distributions.total === 0) && tab.id === 3)
+					|| ((this.imagesOfMovie.total === 0) && tab.id === 4)
+					|| ((this.reviews.total === 0) && tab.id === 8)
+					|| tab.id === 5
+            },
         },
         computed: {
-            ...mapState(['movieFullInfo', 'actorsMovie', 'awards']),
+            ...mapState(['movieFullInfo', 'actorsMovie', 'awards', 'distributions', 'imagesOfMovie']),
+			...mapState({
+				reviews: state => state.movies_reviews.moviesReviews
+			}),
             ...mapGetters(
                 [
                     'getDirector',
@@ -210,17 +234,7 @@
 <template>
 	<Header-Navigation></Header-Navigation>
 
-	<div
-			class="loader-wrapper"
-			v-if="isLoadingPage"
-	>
-		<div class="lds-ring">
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
-	</div>
+	<loaderFullscreen v-if="isLoadingPage"/>
 
 	<section class="movie__wrapper">
 		<div class="container user-container-movie">
@@ -296,7 +310,7 @@
 								<template v-for="(director, index) in this.getDirector.slice(0,3)"
 										  :key="director.staffId"
 								>
-									<a>{{director.nameRu}}</a>
+									<a @click="moveToPerson(director.staffId)">{{director.nameRu}}</a>
 									<span v-if="index < this.getDirector.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 							</div>
@@ -310,7 +324,7 @@
 								<template v-for="(writer, index) in this.getWriters.slice(0,3)"
 										  :key="writer.staffId"
 								>
-									<a>{{writer.nameRu}}</a>
+									<a @click="moveToPerson(writer.staffId)">{{writer.nameRu}}</a>
 									<span v-if="index < this.getWriters.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 
@@ -325,7 +339,7 @@
 								<template v-for="(producer, index) in this.getProducers.slice(0,3)"
 										  :key="producer.staffId"
 								>
-									<a>{{producer.nameRu}}</a>
+									<a @click="moveToPerson(producer.staffId)">{{producer.nameRu}}</a>
 									<span v-if="index < this.getProducers.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 							</div>
@@ -339,7 +353,7 @@
 								<template v-for="(operator, index) in this.getOperators.slice(0,3)"
 										  :key="operator.staffId"
 								>
-									<a>{{operator.nameRu}}</a>
+									<a @click="moveToPerson(operator.staffId)">{{operator.nameRu}}</a>
 									<span v-if="index < this.getOperators.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 							</div>
@@ -353,7 +367,8 @@
 								<template v-for="(composer, index) in this.getComposer.slice(0,3)"
 										  :key="composer.staffId"
 								>
-									<a>{{composer.nameRu.length === 0 ? composer.nameEn : composer.nameRu}}</a>
+									<a @click="moveToPerson(composer.staffId)">{{composer.nameRu.length === 0 ?
+										composer.nameEn : composer.nameRu}}</a>
 									<span v-if="index < this.getComposer.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 							</div>
@@ -367,7 +382,7 @@
 								<template v-for="(design, index) in this.getDesigner.slice(0,3)"
 										  :key="design.staffId"
 								>
-									<a>{{design.nameRu}}</a>
+									<a @click="moveToPerson(design.staffId)">{{design.nameRu}}</a>
 									<span v-if="index < this.getDesigner.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 							</div>
@@ -381,7 +396,7 @@
 								<template v-for="(editor, index) in this.getEditors.slice(0,3)"
 										  :key="editor.staffId"
 								>
-									<a>{{editor.nameRu}}</a>
+									<a @click="moveToPerson(editor.staffId)">{{editor.nameRu}}</a>
 									<span v-if="index < this.getEditors.slice(0,3).length - 1">,&nbsp</span>
 								</template>
 							</div>
@@ -448,7 +463,7 @@
 								:key="tab.id"
 								class="tab"
 								@click="$router.push({name: tab.src, params: {id: movieFullInfo.kinopoiskId}})"
-								:disabled="(awards.total === 0 && tab.id === 2) || tab.id === 5"
+								:disabled="disableTabs(tab)"
 						>
 							{{tab.name}}
 						</button>
@@ -623,6 +638,7 @@
 
 	.user-container-movie {
 		max-width: 1280px;
+		box-shadow: none;
 	}
 
 	h1, h2, h3, h4 {
@@ -790,6 +806,7 @@
 
 		a {
 			color: white;
+			transition: color .1s;
 
 			&:hover {
 				color: #f60;
@@ -840,6 +857,7 @@
 	/*Other info about movie*/
 
 	.movie-other__wrapper {
+		background-color: white;
 		padding: 50px 0;
 	}
 
@@ -1162,68 +1180,6 @@
 
 		p {
 			color: black;
-		}
-	}
-
-	//Loader
-
-	.loader-wrapper {
-		position: fixed;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-
-		z-index: 150;
-
-		background-color: black;
-	}
-
-	.lds-ring {
-		display: block;
-		position: relative;
-		top: 50%;
-		transform: translateY(-50%);
-
-
-		width: 80px;
-		height: 80px;
-
-		margin: 0 auto;
-
-	}
-
-	.lds-ring div {
-		box-sizing: border-box;
-		display: block;
-		position: absolute;
-		width: 64px;
-		height: 64px;
-		margin: 8px;
-		border: 2px solid #fff;
-		border-radius: 50%;
-		animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-		border-color: #f60 transparent transparent transparent;
-	}
-
-	.lds-ring div:nth-child(1) {
-		animation-delay: -0.45s;
-	}
-
-	.lds-ring div:nth-child(2) {
-		animation-delay: -0.3s;
-	}
-
-	.lds-ring div:nth-child(3) {
-		animation-delay: -0.15s;
-	}
-
-	@keyframes lds-ring {
-		0% {
-			transform: rotate(0deg);
-		}
-		100% {
-			transform: rotate(360deg);
 		}
 	}
 </style>

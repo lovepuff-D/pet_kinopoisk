@@ -1,6 +1,6 @@
 <template>
 	<div class="header">
-		<a @click="$router.push({name:'Full-Item', params: {id:movieFullInfo.kinopoiskId}})"
+		<a @click="$router.push({name:'Full-Item', params: {id: this.$route.params.id}})"
 		   class="about-movie"
 		>
 			<span class="about-movie_icon-back"></span>
@@ -33,7 +33,10 @@
     export default {
         name: "Header_From_Tav",
         computed: {
-            ...mapState(['movieFullInfo', 'awards']),
+            ...mapState(['movieFullInfo']),
+        },
+        mounted() {
+            this.$store.dispatch('loadOneMovie', {payload: this.$route.params.id})
         }
     }
 </script>

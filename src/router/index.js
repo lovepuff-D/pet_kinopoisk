@@ -10,7 +10,8 @@ import Movie_Reviews_From_Tab from "@/page/Movie_Reviews_From_Tab"
 
 import Main_Page from "@/page/Page_Main";
 import Catalog from "@/page/Page_Of_Movies-Catalog";
-import AdvancedSearch_Of_Movies from "@/page/AdvancedSearch_Of_Movies";
+import AdvancedSearch_Form from "@/page/Page_AdvancedSearch_Form";
+import AdvancedSearch_List from "@/page/Page_AdvancedSearch_List";
 
 import Person_Item from "@/components/Person_Item";
 
@@ -63,9 +64,14 @@ const routes = [
         component: Movie_Reviews_From_Tab,
     },
     {
-        path: '/advancedSearch',
-        name: 'AdvancedSearch',
-        component: AdvancedSearch_Of_Movies,
+        path: '/advancedSearch/form',
+        name: 'AdvancedSearch_Form',
+        component: AdvancedSearch_Form,
+    },
+    {
+        path: '/advancedSearch/list',
+        name: 'AdvancedSearch_List',
+        component: AdvancedSearch_List,
     },
     {
         path: '/:pathMatch(.*)*',

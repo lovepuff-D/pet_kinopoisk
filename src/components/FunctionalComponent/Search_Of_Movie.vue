@@ -19,6 +19,20 @@
                 if (this.searchField.length === 0) return
                 this.$store.dispatch('findMoviesByKeyword', {nameOfMovie: id})
             },
+            openAdvancedSearch() {
+                //Выставляем параметры для поиска в advanced режиме
+                let paramsOfQuery = {
+                        keyword: this.searchField,
+                        year: '',
+                        yearFrom: '',
+                        yearTo: '',
+                        genre: '',
+                        country: '',
+                        order: 'NUM_VOTE'
+                }
+                this.$store.commit('ADD_LAST_QUERY_OF_SEARCH', paramsOfQuery)
+                this.$router.push({name: 'AdvancedSearch_Form'})
+            },
             hideFiledOfResult(event) {
                 window.addEventListener('click', (event) => {
                     if (event.path.filter(e => {
@@ -64,7 +78,7 @@
 				   @keyup.enter="findMovie(searchField)"
 			>
 			<button class="field-search__icon field-search__icon_filter"
-					@click="$router.push({name: 'AdvancedSearch'})"
+					@click="$router.push({name: 'AdvancedSearch_Form'})"
 			>
 				<svg class="search-form-submit-button__icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
 					 viewBox="0 0 18 18">
@@ -155,7 +169,7 @@
 						Для поиска нажмите Enter
 					</div>
 					<button
-							@click="$router.push({name: 'AdvancedSearch'})"
+							@click="openAdvancedSearch"
 							class="btn movies__btn_show-all"
 							v-if="moviesFromSearchField.searchFilmsCountResult > 0"
 					>

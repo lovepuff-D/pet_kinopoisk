@@ -1,4 +1,6 @@
 <template>
+	<Header-Navigation></Header-Navigation>
+
 	<div class="container">
 		<div class="common-page__wrapper common-page">
 			<div class="common-page__main">

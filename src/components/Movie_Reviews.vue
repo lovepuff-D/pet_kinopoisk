@@ -1,17 +1,17 @@
 <script>
     import {mapState, mapGetters} from 'vuex'
 
+    import Pagination from '@/components/FunctionalComponent/Pagination'
+
     export default {
         name: "Movie_Reviews",
+        components: {
+            Pagination
+        },
         data() {
             return {
                 disableBtnLikes: false,
                 disableBtnDislikes: false,
-                activePage: 1,
-                minPage: 0,
-                maxPage: 4,
-
-                isShowComponent: true,
             }
         },
         props: {
@@ -48,30 +48,8 @@
                 }
             },
             changePage(numPage) {
-                if (numPage === 0) return
-                if (this.getPaginationForReviews === numPage - 1) {
-                    console.log(this.getPaginationForReviews, numPage)
-                    return;
-                }
                 this.activePage = numPage
                 this.$store.dispatch('loadReviews', {payload: this.$route.params.id, page: numPage})
-
-                if (this.activePage !== 1) {
-                    this.minPage = numPage - 2
-                } else {
-                    this.minPage = 0
-                    this.maxPage = 4
-                }
-
-
-                if (this.activePage !== this.getPaginationForReviews) {
-                    this.maxPage = numPage + 2
-                } else {
-                    this.maxPage = numPage + 1
-                    this.minPage = this.getPaginationForReviews - 3
-                }
-
-                window.scrollTo(0, 0)
             },
         },
         watch: {},
@@ -88,17 +66,12 @@
             'updateKey'(newValue, oldValue) {
                 this.$store.dispatch('loadReviews', {payload: this.$route.params.id})
             },
-            'movies_reviews'(newValue, oldValue) {
-                if (this.movies_reviews.total === 0) {
-                    this.isShowComponent = false
-                }
-            }
         }
     }
 </script>
 
 <template>
-	<template v-if="isShowComponent">
+	<template v-if="movies_reviews.total !== 0">
 		<button
 				@click="$router.push({name:'Reviews'})"
 				class="header header_strong header_link btn"
@@ -178,28 +151,13 @@
 						<span>Нейтральные</span>
 					</div>
 				</div>
-				<div
-						v-if="isShowPagination && movies_reviews.totalPages > 1"
-						class="reviews__pagination reviews-pagination"
-				>
-					<button
-							@click="changePage(activePage - 1)"
-							class="reviews-pagination__arrow reviews-pagination__arrow_prev">
-					</button>
-					<template v-for="(e, index) of getPaginationForReviews">
-						<button
-								@click="changePage(e)"
-								v-if="(minPage < e && maxPage > e) "
-								class="reviews-pagination__item btn"
-								:class="{'active-page' : e === activePage}"
-						>
-							{{e}}
-						</button>
-					</template>
-					<button
-							@click="changePage(activePage + 1)"
-							class="reviews-pagination__arrow reviews-pagination__arrow_next">
-					</button>
+				<div class="pagination__wrapper">
+					<Pagination
+							@changePage="changePage"
+							:totalPages="getPaginationForReviews"
+							v-if="isShowPagination"
+					>
+					</Pagination>
 				</div>
 			</div>
 		</div>
@@ -216,7 +174,6 @@
 </template>
 
 <style scoped lang="scss">
-	$black: #222;
 
 	.header_strong {
 		font-size: 36px !important;
@@ -425,70 +382,14 @@
 			}
 
 		}
+	}
 
-		&__pagination {
-			display: flex;
-			justify-content: flex-start;
-			align-items: center;
-			order: -2;
+	.pagination__wrapper {
+		display: flex;
+		justify-content: flex-start;
+		align-items: center;
+		order: -2;
 
-			margin-bottom: 30px;
-
-			width: 100%;
-
-			.reviews-pagination__arrow {
-				display: flex;
-				align-items: center;
-
-				&::before {
-					content: "";
-					display: inline-block;
-
-					width: 36px;
-					height: 36px;
-
-					transition: opacity .2s;
-
-					background: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' fill='%23333'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.707 4.293a1 1 0 010 1.414L9.414 12l6.293 6.293a1 1 0 01-1.414 1.414l-6.93-6.93a1.1 1.1 0 010-1.555l6.93-6.93a1 1 0 011.414 0z'/%3E%3C/svg%3E") no-repeat center center;
-				}
-
-				&:hover {
-					&::before {
-						opacity: .7;
-					}
-				}
-
-				&_next {
-					&::before {
-						transform: rotate(180deg);
-					}
-				}
-			}
-
-
-			.reviews-pagination__item {
-				width: 45px;
-				height: 45px;
-
-				padding: 5px;
-
-				border-radius: 50%;
-
-				transition: background-color .2s;
-
-				&:not(:last-child) {
-					margin-right: 10px;
-				}
-
-				&:hover {
-					background-color: #e6e6e6;
-				}
-			}
-
-			.active-page {
-				background-color: $black !important;
-				color: white;
-			}
-		}
+		margin-bottom: 30px;
 	}
 </style>
