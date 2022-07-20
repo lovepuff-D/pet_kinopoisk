@@ -3,8 +3,8 @@
 
     import Movie_Reviews from '@/components/Movie_Reviews'
 
-	//Import component loader
-	import loaderFullscreen from '@/components/FunctionalComponent/Loader_Fullscreen'
+    //Import component loader
+    import loaderFullscreen from '@/components/FunctionalComponent/Loader_Fullscreen'
 
     // Import Swiper Vue.js components
     import {Navigation, A11y} from 'swiper';
@@ -95,6 +95,8 @@
                     },
                 ].reverse(),
 
+                isResetStyleStarsRating: '',
+
                 isLoadingPage: false,
                 isShowFactsWrapper: false,
                 isShowBloopersWrapper: false,
@@ -148,17 +150,17 @@
             },
             disableTabs(tab) {
                 return ((this.awards.total === 0) && tab.id === 2)
-					|| ((this.distributions.total === 0) && tab.id === 3)
-					|| ((this.imagesOfMovie.total === 0) && tab.id === 4)
-					|| ((this.reviews.total === 0) && tab.id === 8)
-					|| tab.id === 5
+                    || ((this.distributions.total === 0) && tab.id === 3)
+                    || ((this.imagesOfMovie.total === 0) && tab.id === 4)
+                    || ((this.reviews.total === 0) && tab.id === 8)
+                    || tab.id === 5
             },
         },
         computed: {
             ...mapState(['movieFullInfo', 'actorsMovie', 'awards', 'distributions', 'imagesOfMovie']),
-			...mapState({
-				reviews: state => state.movies_reviews.moviesReviews
-			}),
+            ...mapState({
+                reviews: state => state.movies_reviews.moviesReviews
+            }),
             ...mapGetters(
                 [
                     'getDirector',
@@ -474,15 +476,17 @@
 				</div>
 				<div class="header">Рейтинг фильма</div>
 				<div class="movie-other__rating rating">
-					<div class="rating__user rating-user">
+					<div class="rating__user rating-user"
+					>
 						<div
 								class="rating-user__stars"
 						>
 							<div v-for="elem in ratingUser"
-								 @mouseenter="clearClass"
 								 :key="elem.id"
-								 :class="{'chosen-rating': elem.id === Math.round(movieFullInfo.ratingKinopoisk)}"
+								 :class="{'chosen-rating': elem.id <= Math.round(movieFullInfo.ratingKinopoisk) && !isResetStyleStarsRating}"
 								 class="rating-star"
+								 @mouseenter="isResetStyleStarsRating = true"
+								 @mouseleave="isResetStyleStarsRating = false"
 							>
 								<div>
 									<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
@@ -942,7 +946,6 @@
 						}
 					}
 
-
 					svg {
 						transition: fill .3s;
 						width: 50px;
@@ -951,6 +954,12 @@
 				}
 
 				.chosen-rating {
+					color: black;
+
+					svg {
+						fill: #f60;
+					}
+
 					&, & ~ .rating-star {
 						color: black;
 
